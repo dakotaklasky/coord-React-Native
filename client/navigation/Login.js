@@ -1,5 +1,5 @@
 import {useState,useEffect} from "react"
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import * as SecureStore from 'expo-secure-store';
 import {View,Text, TextInput, Button, StyleSheet, StatusBar, Image, KeyboardAvoidingView} from 'react-native'
 
 
@@ -9,9 +9,9 @@ function Login(){
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
 
-    async function storeUserId(user_id){
+   function storeUserId(user_username){
         try{
-            await AsyncStorage.setItem('user_id',user_id.toString())
+            SecureStore.setItem('username',user_username.toString())
         } catch (error){
             console.error("Error saving user_id", error)
         }

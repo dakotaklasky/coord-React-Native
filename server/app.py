@@ -142,6 +142,7 @@ def logout():
 @app.route('/new_match', methods=['GET'])
 def new_match():
     username = request.headers.get('Authorization')
+    print(username)
     if not username:
         return {"error":"please login"}, 401
 

@@ -1,40 +1,57 @@
 import * as React from 'react';
 import {useState,useEffect} from "react"
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { ScrollView, RefreshControl, View, Text, Image, StyleSheet } from 'react-native';
 import { Card, Button } from 'react-native-paper';
-import GetUserId from './GetUserId'
-
-
+import GetUsername from './GetUsername'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 
 function NewMatchCard(){
 
-    const [username, setUsername] = useState(GetUserId())
-    console.log(username)
+    const [username,setUsername] = useState()
+    const [refreshing, setRefreshing] = useState(false)
 
-    if (!username){
+    const onRefresh = () => {
+        setRefreshing(true);
+        if (SecureStore.getItem('username')){
+            setUsername(SecureStore.getItem('username'))
+        }
+        setTimeout(() => {
+          setRefreshing(false); // End refresh after the task is done
+        }, 2000);
+      };
+    
+    useEffect(() =>{
+
+        if (SecureStore.getItem('username')){
+            setUsername(SecureStore.getItem('username'))
+        }
+
+        fetch("http://192.168.1.83:5555/new_match",{
+        method: "GET",
+        headers:{
+            "Content-Type": "application/json",
+            "Accept": 'application/json',
+            "Authorization": SecureStore.getItem('username')
+        },
+        })
+        .then(response => response.json())
+        .then(data => console.log(data))
+        // .then(response => {
+        //     if (!response.ok){throw new Error('Network response not ok')}
+        //     else{return response.json()}
+        // })
+        // .catch(error =>{console.error('There was a problem')})
+        // .then(json => {console.log(json)})
+
+    }, [])
+
+    if (username === undefined){
         return (
         <View>
             <Text>Please Login!</Text>
         </View>)
     }
-    
-    // useEffect(() =>{
-    //         fetch("http://192.168.1.83:5555/new_match",{
-    //         method: "GET",
-    //         headers:{
-    //             "Content-Type": "application/json",
-    //             "Accept": 'application/json',
-    //             "Authorization": username
-    //         },
-    //     }) 
-    //     .then(response => {
-    //         if (!response.ok){throw new Error('Network response not ok')}
-    //         else{return response.json()}
-    //     })
-    //     .catch(error =>{console.error('There was a problem')})
-    //     .then(json => {console.log(json)})
-
-    // }, [])
     
 
 
@@ -48,7 +65,11 @@ function NewMatchCard(){
 
 
     return(
-        <View style={styles.container}>
+        <ScrollView  refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>
+        }
+        >
+            <View style={styles.container}>
             <Card style={styles.card}>
                 <Card.Content>
                     <Image
@@ -66,7 +87,8 @@ function NewMatchCard(){
                   
                 </Card.Actions>
             </Card>
-        </View>
+            </View>
+        </ScrollView>
      
     )
 

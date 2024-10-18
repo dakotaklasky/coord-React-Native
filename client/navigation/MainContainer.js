@@ -3,6 +3,8 @@ import {View,Text} from 'react-native'
 import { NavigationContainer } from '@react-navigation/native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import Ionicons from 'react-native-vector-icons/Ionicons'
+import GetUserId from './GetUsername'
+import {useState,useEffect} from "react"
 
 import Login from './Login'
 import NewMatchCard from './NewMatchCard'
@@ -18,6 +20,7 @@ const settingsName = 'Settings'
 const Tab = createBottomTabNavigator()
 
 export default function MainContainer(){
+
     return(
         <NavigationContainer>
             <Tab.Navigator
@@ -42,10 +45,14 @@ export default function MainContainer(){
            
             })}
             >
-                <Tab.Screen name={loginName} component={Login}/>
+               
                 <Tab.Screen name={homeName} component={NewMatchCard}/>
                 <Tab.Screen name={detailsName} component={DetailsScreen}/>
                 <Tab.Screen name={settingsName} component={SettingsScreen}/>
+                <Tab.Screen name={loginName} component={Login}/>
+            
+                
+                
             </Tab.Navigator>
         </NavigationContainer>
     )

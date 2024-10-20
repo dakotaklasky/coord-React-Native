@@ -6,7 +6,7 @@
 from flask import Flask, request, session
 import random
 from sqlalchemy import select
-from datetime import date,timedelta
+from datetime import date,timedelta, datetime
 from sqlalchemy.orm import class_mapper
 
 
@@ -393,14 +393,32 @@ def user_attributes():
 #     else:
 #         return {"error":"please login"}, 401
 
-# @app.route('/messages', methods=['GET'])
-# def get_messages():
-#     username = request.headers.get('Authorization')
-#     if not username:
-#         return {"error":"please login"}, 401
+@app.route('/messages/<int:messagee_id>', methods=['GET'])
+def get_messages(messagee_id):
+    username = request.headers.get('Authorization')
+    if not username:
+        return {"error":"please login"}, 401
+    user = User.query.filter(User.username == username).first()
+    messager_id = user.id
+    sent_messages = user.messages
 
-#     messages = User.query.filter(User.username == username).first().messages
+    sent_message_array = []
+    for i in range(0,len(sent_messages)):
+        if sent_messages[i].messagee == messagee_id:
+            sent_message_array.append({'message': sent_messages[i].message,'time': sent_messages[i].time})
+    
+    sent_sorted_msgs = sorted(sent_message_array, key=lambda x: datetime.fromisoformat(x['time']))
 
+    received_messages = User.query.filter(User.username == messagee_id).first().messages
+
+    received_message_array = []
+    for i in range(0,len(received_messages)):
+        if received_messages[i].messagee == messager_id:
+            received_message_array.append({'message': received_messages[i].message,'time': received_messages[i].time})
+    
+    received_sorted_msgs = sorted(received_message_array, key=lambda x: datetime.fromisoformat(x['time']))
+    return {'sent': sent_sorted_msgs, 'received':received_sorted_msgs}, 200
+    
 
 
 

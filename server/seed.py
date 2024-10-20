@@ -9,7 +9,7 @@ from faker import Faker
 
 # Local imports
 from app import app
-from models import db, User, Like, Match, Preference, PreferenceOption, UserAttribute
+from models import db, User, Like, Match, Preference, PreferenceOption, UserAttribute, Message
 
 if __name__ == '__main__':
     fake = Faker()
@@ -44,6 +44,7 @@ if __name__ == '__main__':
         likes = []
         matches = []
         user_attributes = []
+        messages = []
 
         gender_options = ['Man','Woman','Nonbinary']
         height_options = PreferenceOption(category='Height',input_type='interval',minval=90, maxval=200)
@@ -103,15 +104,22 @@ if __name__ == '__main__':
             likes.append(match_2)
             likes.append(match_3)
 
+            message_1 = Message(user_id= j, messagee=j+1, message=fake.text(), time=fake.date_time_between(start_date=date(2023,1,1), end_date=date(2024,10,20)).isoformat())
+            message_2 = Message(user_id= j, messagee=j+3, message=fake.text(), time=fake.date_time_between(start_date=date(2023,1,1), end_date=date(2024,10,20)).isoformat())
+            message_3 = Message(user_id= j, messagee=j+5, message=fake.text(), time=fake.date_time_between(start_date=date(2023,1,1), end_date=date(2024,10,20)).isoformat())
+            messages.append(message_1)
+            messages.append(message_2)
+            messages.append(message_3)
+
         pref_options = []
-        pref_option1 = PreferenceOption(category='Gender',input_type='dropdown',options='Man,Woman,Nonbinary')
-        pref_option2 = PreferenceOption(category='Height',input_type='interval',minval=90, maxval=200)
-        pref_option3 = PreferenceOption(category='Age', input_type='interval',minval=18, maxval = 100)
-        pref_option4 = PreferenceOption(category='Ethnicity',input_type='dropdown', options='Black/African Descent,East Asian,Hispanic/Latino,Middle Eastern, Native American,Pacific Islander, South Asian, Southeast Asian, White/Caucasian,Other')
-        pref_option5 = PreferenceOption(category='Religion',input_type='dropdown',options='Agnostic,Atheist,Buddhist,Catholic,Christian,Hindu,Jewish,Muslim,Sikh,Spiritual,Other')
-        pref_option6 = PreferenceOption(category='Relationship',input_type='dropdown', options='Monogamy,Non-monogamy,Figuring out their relationship type')
-        pref_option7= PreferenceOption(category='Politics',input_type='dropdown',options='Liberal,Conservative,Moderate,Agnostic')
-        pref_option8 = PreferenceOption(category='Education',input_type='dropdown',options='High School,Bachelors,Masters,PhD')
+        pref_option1 = PreferenceOption(category='Gender',input_type='dropdown',options='Man,Woman,Nonbinary', icon="person-outline")
+        pref_option2 = PreferenceOption(category='Height',input_type='interval',minval=90, maxval=200, icon="stats-chart-outline")
+        pref_option3 = PreferenceOption(category='Age', input_type='interval',minval=18, maxval = 100, icon="balloon-outline")
+        pref_option4 = PreferenceOption(category='Ethnicity',input_type='dropdown', options='Black/African Descent,East Asian,Hispanic/Latino,Middle Eastern, Native American,Pacific Islander, South Asian, Southeast Asian, White/Caucasian,Other',icon="earth-outline")
+        pref_option5 = PreferenceOption(category='Religion',input_type='dropdown',options='Agnostic,Atheist,Buddhist,Catholic,Christian,Hindu,Jewish,Muslim,Sikh,Spiritual,Other', icon="globe-outline")
+        pref_option6 = PreferenceOption(category='Relationship',input_type='dropdown', options='Monogamy,Non-monogamy,Figuring out their relationship type',icon="people-outline")
+        pref_option7= PreferenceOption(category='Politics',input_type='dropdown',options='Liberal,Conservative,Moderate,Agnostic',icon="glasses-outline")
+        pref_option8 = PreferenceOption(category='Education',input_type='dropdown',options='High School,Bachelors,Masters,PhD',icon="book-outline")
 
         pref_options.append(pref_option1)
         pref_options.append(pref_option2)
@@ -131,6 +139,7 @@ if __name__ == '__main__':
         db.session.add_all(matches)
         db.session.add_all(pref_options)
         db.session.add_all(user_attributes)
+        db.session.add_all(messages)
         db.session.commit()
 
 

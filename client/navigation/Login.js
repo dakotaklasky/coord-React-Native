@@ -1,6 +1,6 @@
 import {useState,useEffect} from "react"
 import * as SecureStore from 'expo-secure-store';
-import {View,Text, TextInput, Button, StyleSheet, StatusBar, Image, KeyboardAvoidingView} from 'react-native'
+import {View,Text, TextInput, Button, StyleSheet, Image, KeyboardAvoidingView} from 'react-native'
 
 
 function Login(){

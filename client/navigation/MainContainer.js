@@ -1,23 +1,39 @@
 import * as React from 'react'
-import {View,Text} from 'react-native'
 import { NavigationContainer } from '@react-navigation/native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import Ionicons from 'react-native-vector-icons/Ionicons'
-import GetUserId from './GetUsername'
-import {useState,useEffect} from "react"
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
+
 
 import Login from './Login'
 import NewMatchCard from './NewMatchCard'
-import DetailsScreen from './DetailsScreen'
-import SettingsScreen from './SettingsScreen'
+import MatchList from './MatchList'
+import MatchDetails from './MatchDetails'
+import AccountScreen from './AccountScreen'
+import Logout from './Logout'
+import Signup from './Signup'
+
 
 const loginName = 'Login'
 const homeName = 'Home'
-const detailsName = 'Details'
-const settingsName = 'Settings'
+const matchName = 'Matches'
+const matchDetails = 'MatchDetails'
+const matchList = 'My Matches'
+const accountScreen = 'My Account'
+const logoutName = 'Logout'
+const signupName = 'Signup'
 
-
+const Stack = createNativeStackNavigator()
 const Tab = createBottomTabNavigator()
+
+function MatchStack(){
+    return(
+        <Stack.Navigator>
+            <Stack.Screen name={matchName} component={MatchList}/>
+            <Stack.Screen name={matchDetails} component={MatchDetails}/>
+        </Stack.Navigator>
+    )
+}
 
 export default function MainContainer(){
 
@@ -34,10 +50,14 @@ export default function MainContainer(){
                         iconName = focused ? 'log-in' : 'log-in-outline'
                     } else if (rn==homeName){
                         iconName= focused ? 'home' : 'home-outline'
-                    } else if (rn== detailsName){
-                        iconName = focused ? 'list' : 'list-outline'
-                    } else if (rn== settingsName){
-                        iconName = focused ? 'settings' : 'settings-outline'
+                    } else if (rn== accountScreen){
+                        iconName = focused ? 'person-circle' : 'person-circle-outline'
+                    } else if (rn== signupName){
+                        iconName = focused ? 'person-add' : 'person-add-outline'
+                    } else if (rn==matchList){
+                        iconName = focused ? 'chatbubbles' : 'chatbubbles-outline'
+                    } else if (rn=logoutName){
+                        iconName = focused ? 'log-out' : 'log-out-outline'
                     }
 
                     return <Ionicons name={iconName} size={size} color={color}/>
@@ -45,14 +65,12 @@ export default function MainContainer(){
            
             })}
             >
-               
                 <Tab.Screen name={homeName} component={NewMatchCard}/>
-                <Tab.Screen name={detailsName} component={DetailsScreen}/>
-                <Tab.Screen name={settingsName} component={SettingsScreen}/>
+                <Tab.Screen name={matchList} component={MatchStack}/>
+                <Tab.Screen name={accountScreen} component={AccountScreen}/>
+                <Tab.Screen name={logoutName} component={Logout}/>
                 <Tab.Screen name={loginName} component={Login}/>
-            
-                
-                
+                <Tab.Screen name={signupName} component={Signup}/>
             </Tab.Navigator>
         </NavigationContainer>
     )

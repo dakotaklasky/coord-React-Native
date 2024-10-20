@@ -2,14 +2,15 @@ import * as React from 'react';
 import {useState,useEffect} from "react"
 import { ScrollView, RefreshControl, View, Text, Image, StyleSheet } from 'react-native';
 import { Card, Button } from 'react-native-paper';
-import GetUsername from './GetUsername'
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
+import Ionicons from 'react-native-vector-icons/Ionicons'
 
 function NewMatchCard(){
 
     const [username,setUsername] = useState()
     const [refreshing, setRefreshing] = useState(false)
+    const [user, setUser] = useState([])
+    const [userAttributeDict, setUserAttributeDict] = useState([])
 
     const onRefresh = () => {
         setRefreshing(true);
@@ -27,7 +28,7 @@ function NewMatchCard(){
             setUsername(SecureStore.getItem('username'))
         }
 
-        fetch("http://192.168.1.83:5555/new_match",{
+        fetch((`http://192.168.1.83:5555/new_match`),{
         method: "GET",
         headers:{
             "Content-Type": "application/json",
@@ -35,33 +36,152 @@ function NewMatchCard(){
             "Authorization": SecureStore.getItem('username')
         },
         })
-        .then(response => response.json())
-        .then(data => console.log(data))
-        // .then(response => {
-        //     if (!response.ok){throw new Error('Network response not ok')}
-        //     else{return response.json()}
-        // })
-        // .catch(error =>{console.error('There was a problem')})
-        // .then(json => {console.log(json)})
+        .then(response => {
+            if (!response.ok){throw new Error('Network response not ok')}
+            else{return response.json()}
+        })
+        .then(json => {
+            setUser(json)
+            const attribute_dict = {}
+            for(const row in json.attributes)
+                attribute_dict[json.attributes[row].attribute_category] = json.attributes[row].attribute_value
+            
+            setUserAttributeDict(attribute_dict)
+        })
+        .catch(error =>{console.error('There was a problem')})
+
 
     }, [])
 
     if (username === undefined){
         return (
-        <View>
+        <View refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>
+        }>
             <Text>Please Login!</Text>
         </View>)
     }
+
     
-
-
-    function handleDislike(){
-
+    if(user.no_users){
+        return (
+            <View refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>
+            }>
+                <Text>You went through all the users!</Text>
+            </View>)
+        
     }
 
-    function handleLike(){
 
+    async function handleDislike(){
+        await fetch((`http://192.168.1.83:5555/like`),{
+            method: "POST",
+            headers:{
+                "Content-Type": "application/json",
+                "Accept": 'application/json',
+                "Authorization": SecureStore.getItem('username')
+            },
+            body: JSON.stringify({
+                matchee_id: user.id,
+                accepted: -1
+            })
+        })
+        .then(response => {
+            if (!response.ok){throw new Error('Network response not ok')}
+            })
+        .catch(error =>{
+            console.error('There was a problem')
+            })
+
+        await fetch((`http://192.168.1.83:5555/new_match`),{
+            method: "GET",
+            headers:{
+                "Content-Type": "application/json",
+                "Accept": 'application/json',
+                "Authorization": SecureStore.getItem('username')
+            },
+        }) 
+        .then(response => {
+            if (!response.ok){throw new Error('Network response not ok')}
+            else{return response.json()}
+        })
+        .catch(error =>{console.error('There was a problem')})
+        .then(json => {
+            setUser(json)
+
+            const attribute_dict = {}
+            for(const row in json.attributes)
+                attribute_dict[json.attributes[row].attribute_category] = json.attributes[row].attribute_value
+            
+            setUserAttributeDict(attribute_dict)
+        })
     }
+
+    async function handleLike(){
+        await fetch((`http://192.168.1.83:5555/like`),{
+            method: "POST",
+            headers:{
+                "Content-Type": "application/json",
+                "Accept": 'application/json',
+                "Authorization": SecureStore.getItem('username')
+            },
+            body: JSON.stringify({
+                matchee_id: user.id,
+                accepted: 1,
+            })
+        })
+        .then(response => {
+            if (!response.ok){
+                throw new Error('Network response not ok')
+            }
+            return response.json()})
+        .then(data =>{
+            if (data['MatchFlag'] == 1){
+                alert(`You matched with ${user.username}`)
+            }
+        })
+        .catch(error =>{
+            console.error('There was a problem')
+        })
+
+        await fetch((`http://192.168.1.83:5555/new_match`),{
+            method: "GET",
+            headers:{
+                "Content-Type": "application/json",
+                "Accept": 'application/json',
+                "Authorization": SecureStore.getItem('username')
+            },
+        }) 
+        .then(response => {
+            if (!response.ok){throw new Error('Network response not ok')}
+            else{return response.json()}
+        })
+        .catch(error =>{console.error('There was a problem')})
+        .then(json => {
+            setUser(json)
+            const attribute_dict = {}
+            for(const row in json.attributes)
+                attribute_dict[json.attributes[row].attribute_category] = json.attributes[row].attribute_value
+            
+            setUserAttributeDict(attribute_dict)
+    })
+    }
+
+    function calculateAge(birthDate) {
+        const today = new Date();
+        const birthDateObj = new Date(birthDate);
+      
+        let age = today.getFullYear() - birthDateObj.getFullYear();
+        const monthDiff = today.getMonth() - birthDateObj.getMonth();
+      
+        // If the birthday hasn't happened this year, subtract 1
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDateObj.getDate())) {
+          age--;
+        }
+      
+        return String(age);
+      }
 
 
     return(
@@ -69,20 +189,30 @@ function NewMatchCard(){
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>
         }
         >
-            <View style={styles.container}>
+            <View style = {styles.container}>
             <Card style={styles.card}>
+                <ScrollView>
                 <Card.Content>
                     <Image
-                        source={{uri: "https://dummyimage.com/753x721"}}
+                        source={{uri: user.image}}
                         style={styles.image}
                         alt="User Profile Picture"/>
-                    <Text style={styles.username}>{username}</Text>
-                    <Text style={styles.bio}>Bio</Text>
+                    <Text style={styles.username}>{user.username}</Text>
+                    <Text style={styles.bio}>{user.bio}</Text>
+                    {Object.entries(userAttributeDict).map(([key,value]) => (
+                    key == "Birthdate" ?
+                    <Text key={key}><Ionicons name="balloon-outline" size={16}></Ionicons> {calculateAge(value)}</Text> :
+                    key == "Date" ?
+                    <Text key={key}></Text>:
+                        <Text key={key}><Ionicons name="glasses-outline" size={16}></Ionicons> {value}</Text>
+                        
+                ))}
                 </Card.Content>
+                </ScrollView>
                 <Card.Actions style={styles.actions}>
-                    <Button style = {styles.button} icon="close" mode="outlined" onPress={handleDislike}/>
+                    <Button style = {styles.button} icon="close" mode="outlined" iconStyle={{alignItems: 'center'}} onPress={handleDislike}/>
                     <View style={styles.spacer}></View>
-                    <Button style = {styles.button} icon="heart" mode="contained" onPress={handleLike}/>
+                    <Button style = {styles.button} icon="heart" mode="contained" iconStyle={{alignSelf: 'center'}} onPress={handleLike}/>
                      
                   
                 </Card.Actions>
@@ -108,9 +238,8 @@ const styles = StyleSheet.create({
       margin:16
     },
     image: {
-      width: 100,
-      height: 100,
-      borderRadius: 50,
+      width: 300,
+      height: 300,
       marginBottom: 16,
     },
     username: {
@@ -128,13 +257,15 @@ const styles = StyleSheet.create({
     },
     actions: {
       flexDirection: 'row',
-      justifyContent: 'space-between'
+      justifyContent: 'space-between',
+      alignItems: 'center'
     },
     spacer:{
         flex:1
     },
     button: {
-        justifyContent: 'center'
+        justifyContent: 'center',
+        alignItems: 'center'
     }
   });
 

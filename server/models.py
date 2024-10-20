@@ -63,7 +63,8 @@ class User(db.Model, SerializerMixin):
     likes = db.relationship('Like',foreign_keys=[Like.matcher_id],back_populates='matcher_user')
     matches = db.relationship('Match',foreign_keys=[Match.matcher_id],back_populates='matcher_user')
     attributes = db.relationship('UserAttribute',back_populates='user')
-    serialize_rules = ['-_password_hash','-preferences.user','-likes.matcher_user','-matches.matcher_user','-attributes.user']
+    messages = db.relationship('Message',back_populates='user')
+    serialize_rules = ['-_password_hash','-preferences.user','-likes.matcher_user','-matches.matcher_user','-attributes.user','-messages.user']
 
     matchee_likes = association_proxy('likes','matchee_user',creator=lambda matchee_user_obj: Like(matchee_user=matchee_user_obj))
     matchee_matches = association_proxy('matches','matchee_user',creator=lambda matchee_user_obj: Match(matchee_user=matchee_user_obj))
@@ -91,6 +92,7 @@ class PreferenceOption(db.Model, SerializerMixin):
     options = db.Column(db.String)
     minval = db.Column(db.Integer)
     maxval = db.Column(db.Integer)
+    icon = db.Column(db.String)
 
     def __repr(self):
         return f'<PreferenceOption id:{self.id}, category:{self.category}>'
@@ -107,6 +109,20 @@ class UserAttribute(db.Model, SerializerMixin):
 
     def __repr__(self):
         return f'<UserAttribute user_id:{self.user_id}, category:{self.attribute_category}, value: {self.attribute_value}>'
+
+class Message(db.Model, SerializerMixin):
+    __tablename__='messages'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'),nullable=False)
+    messagee = db.Column(db.Integer,nullable=False)
+    message = db.Column(db.String)
+    time = db.Column(db.String)
+
+    def __repr__(self):
+        return f'<Message user_id:{self.user_id}, messagee:{self.messagee}, message:{self.message}, time:{self.time}'
+
+    user = db.relationship('User',back_populates='messages')
+    serialize_rules = ['-user.messages']
 
 
 

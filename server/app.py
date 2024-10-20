@@ -23,90 +23,93 @@ def user(user_id):
 
 @app.route('/myaccount', methods=['GET','PATCH'])
 def myaccount():
-    if 'user_id' in session:
-        user_id = session.get('user_id')
-        user = User.query.filter(User.id == user_id).first()
-        user_attribute_fields = []
-        for i in user.attributes:
-            user_attribute_fields.append(i.attribute_category)
 
-        if request.method == 'GET':
-            return user.to_dict(), 200
-
-        elif request.method == 'PATCH':
-            data = request.get_json()
-
-            user_info = [column.key for column in class_mapper(User).columns]
-            for field in data:
-                if field in user_info:
-                    setattr(user,field,data[field])
-                    db.session.add(user)
-                else:
-                    #test if attribute exists
-                    if field in user_attribute_fields:
-                        current_attribute = UserAttribute.query.filter(UserAttribute.user_id == user_id).filter(UserAttribute.attribute_category == field).first()
-                        current_attribute.attribute_value = data[field]
-                        db.session.add(current_attribute)
-                    else:
-                        user_attribute = UserAttribute(field,data[field])
-                        db.session.add(user_attribute)
-            
-            db.session.commit()
-
-            return user.to_dict(), 200
-    else:
+    username = request.headers.get('Authorization')
+    if not username:
         return {"error":"please login"}, 401
+
+    user = User.query.filter(User.username == username).first()
+    user_id = user.id
+    user_attribute_fields = []
+    for i in user.attributes:
+        user_attribute_fields.append(i.attribute_category)
+
+    if request.method == 'GET':
+        return user.to_dict(), 200
+
+    elif request.method == 'PATCH':
+        data = request.get_json()
+
+        user_info = [column.key for column in class_mapper(User).columns]
+        for field in data:
+            if field in user_info:
+                setattr(user,field,data[field])
+                db.session.add(user)
+            else:
+                #test if attribute exists
+                if field in user_attribute_fields:
+                    current_attribute = UserAttribute.query.filter(UserAttribute.user_id == user_id).filter(UserAttribute.attribute_category == field).first()
+                    current_attribute.attribute_value = data[field]
+                    db.session.add(current_attribute)
+                else:
+                    user_attribute = UserAttribute(field,data[field])
+                    db.session.add(user_attribute)
+        
+        db.session.commit()
+
+        return user.to_dict(), 200
 
 @app.route('/mypreferences', methods=['GET','PATCH'])
 def mypreferences():
-    if 'user_id' in session:
-        user_id = session.get('user_id')
-        user = User.query.filter(User.id == user_id).first()
+    username = request.headers.get('Authorization')
+    if not username:
+        return {"error":"please login"}, 401
 
-        if request.method == 'GET':
-            prefs = user.preferences
-            pref_dict = {}
-            for i in prefs:
-                if i.pref_category in pref_dict:
-                    pref_dict[i.pref_category].append(i.pref_value)
+    user = User.query.filter(User.username == username).first()
+    user_id = user.id
+
+    if request.method == 'GET':
+        prefs = user.preferences
+        pref_dict = {}
+        for i in prefs:
+            if i.pref_category in pref_dict:
+                pref_dict[i.pref_category].append(i.pref_value)
+            else:
+                pref_dict[i.pref_category] = [i.pref_value]
+        return pref_dict, 200
+    if request.method == 'PATCH':
+        data = request.get_json()
+        print(data)
+        for field in data:
+            pref = Preference.query.filter(Preference.user_id == user_id).filter(Preference.pref_category == field).first()
+            if pref:
+                if len(data[field]) > 1:
+                    prefs = Preference.query.filter(Preference.user_id == user_id).filter(Preference.pref_category == field).all()
+                    pref1 = prefs[0]
+                    pref2 = prefs[1]
+                    pref1.pref_value = data[field][0]
+                    pref2.pref_value = data[field][1]
+                    db.session.add(pref1)
+                    db.session.add(pref2)
                 else:
-                    pref_dict[i.pref_category] = [i.pref_value]
-            return pref_dict, 200
-        if request.method == 'PATCH':
-            data = request.get_json()
-            print(data)
-            for field in data:
-                pref = Preference.query.filter(Preference.user_id == user_id).filter(Preference.pref_category == field).first()
-                if pref:
+                    pref.pref_value = data[field][0]
+                    db.session.add(pref)
+            else:
                     if len(data[field]) > 1:
-                        prefs = Preference.query.filter(Preference.user_id == user_id).filter(Preference.pref_category == field).all()
-                        pref1 = prefs[0]
-                        pref2 = prefs[1]
-                        pref1.pref_value = data[field][0]
-                        pref2.pref_value = data[field][1]
-                        db.session.add(pref1)
-                        db.session.add(pref2)
+                        new_pref1 = Preference(user_id = user_id, pref_category=field, pref_value = data[field][0])
+                        new_pref2 = Preference(user_id = user_id, pref_category=field, pref_value = data[field][1])
+                        db.session.add(new_pref1)
+                        db.session.add(new_pref2)
                     else:
-                        pref.pref_value = data[field][0]
-                        db.session.add(pref)
-                else:
-                        if len(data[field]) > 1:
-                            new_pref1 = Preference(user_id = user_id, pref_category=field, pref_value = data[field][0])
-                            new_pref2 = Preference(user_id = user_id, pref_category=field, pref_value = data[field][1])
-                            db.session.add(new_pref1)
-                            db.session.add(new_pref2)
-                        else:
-                            new_pref = Preference(user_id = user_id, pref_category=field, pref_value = data[field][0])
-                            db.session.add(new_pref)
-            db.session.commit()
-            return [p.to_dict() for p in Preference.query.filter(Preference.user_id == user_id).all()], 200
-    else:
-        return {"error":"please login!"}, 401
+                        new_pref = Preference(user_id = user_id, pref_category=field, pref_value = data[field][0])
+                        db.session.add(new_pref)
+        db.session.commit()
+        return [p.to_dict() for p in Preference.query.filter(Preference.user_id == user_id).all()], 200
+
 
 
 @app.route('/login', methods=['POST'])
 def login():
-    print('working')
     data = request.get_json()
     username = data.get('username')
     user = User.query.filter(User.username == username).first()
@@ -223,10 +226,11 @@ def new_match():
 
 @app.route('/like', methods = ['POST'])
 def user_like():
-    user_id = request.headers.get('Authorization')
-    if not user_id:
+    username = request.headers.get('Authorization')
+    if not username:
         return {"error":"please login"}, 401
 
+    user_id = User.query.filter(User.username == username).first().id
     data = request.get_json()
     new_like = Like(matcher_id = user_id, matchee_id = data.get('matchee_id'), accepted = data.get('accepted'))
     db.session.add(new_like)
@@ -283,13 +287,14 @@ def user_id_like(user_id):
 
 @app.route('/matches', methods = ['GET'])
 def user_matches():
-    if 'user_id' in session:
-        user_id = session.get('user_id')
-        user = User.query.filter(User.id == user_id).first()
-        matches = user.matchee_matches
-        return [m.to_dict(rules=['-likes','-matches','-preferences']) for m in matches],200
-    else:
-        return {"error": "please login"}, 401
+    username = request.headers.get('Authorization')
+    if not username:
+        return {"error":"please login"}, 401
+
+    user = User.query.filter(User.username == username).first()
+    matches = user.matchee_matches
+    return [m.to_dict(rules=['-likes','-matches','-preferences']) for m in matches],200
+  
 
 @app.route('/signup',methods=['POST'])
 def signup():
@@ -331,33 +336,38 @@ def pref_options():
 
 @app.route('/user_attributes',methods=['GET', 'PATCH'])
 def user_attributes():
-    if 'user_id' in session:
-        user_id = session.get('user_id')
-        if request.method == "GET":
-            user_attributes = UserAttribute.query.filter(UserAttribute.user_id == user_id).all()
 
-            attribute_dict = {}
-            for a in user_attributes:
-                attribute_dict[a.attribute_category] = a.attribute_value
-
-            return attribute_dict, 200
-        if request.method == 'PATCH':
-            data = request.get_json()
-            for field in data:
-                attributes = UserAttribute.query.filter(UserAttribute.user_id == user_id).filter(UserAttribute.attribute_category == field).all()
-                if attributes:
-                    for j in range(0,len(attributes)):
-                        attributes[j].attribute_value = data[field][j]
-                        db.session.add(attributes[j])
-                else:
-                    for i in range(0,len(data[field])):
-                        new_attribute = UserAttribute(user_id = user_id, attribute_category = field, attribute_value = data[field][i])
-                        db.session.add(new_attribute)
-                        
-            db.session.commit()
-            return {"PATCH":"success"}, 200
-    else:
+    username = request.headers.get('Authorization')
+    if not username:
         return {"error":"please login"}, 401
+
+    user = User.query.filter(User.username == username).first()
+    user_id = user.id
+
+    if request.method == "GET":
+        user_attributes = UserAttribute.query.filter(UserAttribute.user_id == user_id).all()
+
+        attribute_dict = {}
+        for a in user_attributes:
+            attribute_dict[a.attribute_category] = a.attribute_value
+
+        return attribute_dict, 200
+    if request.method == 'PATCH':
+        data = request.get_json()
+        for field in data:
+            attributes = UserAttribute.query.filter(UserAttribute.user_id == user_id).filter(UserAttribute.attribute_category == field).all()
+            if attributes:
+                for j in range(0,len(attributes)):
+                    attributes[j].attribute_value = data[field][j]
+                    db.session.add(attributes[j])
+            else:
+                for i in range(0,len(data[field])):
+                    new_attribute = UserAttribute(user_id = user_id, attribute_category = field, attribute_value = data[field][i])
+                    db.session.add(new_attribute)
+                    
+        db.session.commit()
+        return {"PATCH":"success"}, 200
+
 
 # @app.route('/isloggedin',methods=['GET'])
 # def isloggedin():
@@ -366,22 +376,32 @@ def user_attributes():
 #     else:
 #         return {"logged in": "false"}, 401
 
-@app.route('/date_matching',methods=['PATCH'])
-def date_matching():
-    if 'user_id' in session:
-        user_id = session.get('user_id')
-        data = request.get_json()
-        user = User.query.filter(User.id == user_id).first()
-        if user.date_matching == 1:
-            user.date_matching = 0
-        else:
-            user.date_matching = 1
-        db.session.add(user)
-        db.session.commit()
+# @app.route('/date_matching',methods=['PATCH'])
+# def date_matching():
+#     if 'user_id' in session:
+#         user_id = session.get('user_id')
+#         data = request.get_json()
+#         user = User.query.filter(User.id == user_id).first()
+#         if user.date_matching == 1:
+#             user.date_matching = 0
+#         else:
+#             user.date_matching = 1
+#         db.session.add(user)
+#         db.session.commit()
 
-        return user.to_dict(), 200
-    else:
-        return {"error":"please login"}, 401
+#         return user.to_dict(), 200
+#     else:
+#         return {"error":"please login"}, 401
+
+# @app.route('/messages', methods=['GET'])
+# def get_messages():
+#     username = request.headers.get('Authorization')
+#     if not username:
+#         return {"error":"please login"}, 401
+
+#     messages = User.query.filter(User.username == username).first().messages
+
+
 
 
 if __name__ == '__main__':

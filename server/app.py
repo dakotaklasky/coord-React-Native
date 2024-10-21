@@ -393,31 +393,40 @@ def user_attributes():
 #     else:
 #         return {"error":"please login"}, 401
 
-@app.route('/messages/<int:messagee_id>', methods=['GET'])
+@app.route('/messages/<int:messagee_id>', methods=['GET','POST'])
 def get_messages(messagee_id):
     username = request.headers.get('Authorization')
     if not username:
         return {"error":"please login"}, 401
-    user = User.query.filter(User.username == username).first()
-    messager_id = user.id
-    sent_messages = user.messages
 
-    sent_message_array = []
-    for i in range(0,len(sent_messages)):
-        if sent_messages[i].messagee == messagee_id:
-            sent_message_array.append({'message': sent_messages[i].message,'time': sent_messages[i].time})
+    if request.method == 'GET':
+        user = User.query.filter(User.username == username).first()
+        messager_id = user.id
+        sent_messages = user.messages
+
+        sent_message_array = []
+        for i in range(0,len(sent_messages)):
+            if sent_messages[i].messagee == messagee_id:
+                sent_message_array.append({'message': sent_messages[i].message,'time': sent_messages[i].time, 'sender': 'messager'})
+        
+        
+        received_messages = User.query.filter(User.id== messagee_id).first().messages
+
+        received_message_array = []
+        for i in range(0,len(received_messages)):
+            if received_messages[i].messagee == messager_id:
+                received_message_array.append({'message': received_messages[i].message,'time': received_messages[i].time, 'sender': 'messagee'})
+
+
+        all_sorted_msgs = sorted(sent_message_array + received_message_array, key=lambda x: datetime.fromisoformat(x['time']))
+        return {'msgs':all_sorted_msgs}, 200
     
-    sent_sorted_msgs = sorted(sent_message_array, key=lambda x: datetime.fromisoformat(x['time']))
-
-    received_messages = User.query.filter(User.username == messagee_id).first().messages
-
-    received_message_array = []
-    for i in range(0,len(received_messages)):
-        if received_messages[i].messagee == messager_id:
-            received_message_array.append({'message': received_messages[i].message,'time': received_messages[i].time})
-    
-    received_sorted_msgs = sorted(received_message_array, key=lambda x: datetime.fromisoformat(x['time']))
-    return {'sent': sent_sorted_msgs, 'received':received_sorted_msgs}, 200
+    if request.method == 'POST':
+        data = request.get_json()
+        new_message = Message(user_id=data.get('user_id'),messagee=data.get('messagee'),message=data.get('message'),time=data.get('time'))
+        db.session.add(new_message)
+        db.session.commit()
+        return new_message.to_dict(),200
     
 
 

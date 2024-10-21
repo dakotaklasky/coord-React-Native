@@ -28,15 +28,6 @@ function MatchList(){
         .then(json => {
             
                 setMyData(json)
-                // const last
-                // for(const row in json){
-                //     messageDict[row.messagee] = {
-                //         message: row.message,
-                //         time: row.time
-                //     }
-                // }
-                // setMessages(messageDict)
-
             }
             
             )
@@ -57,12 +48,11 @@ function MatchList(){
         matches.push([myData[m].username,myData[m].id,myData[m].image])
     }
 
-    // console.log(myData[0]['messages'])
-
     return(
         <ScrollView contentContainerStyle={styles.container}>
             {matches.map((match,index) => (
-                <Card style={styles.card} key={index}>
+                <TouchableOpacity key={index} onPress={() => navigation.navigate('Messages', {id: match[1]})}>
+                <Card style={styles.card} >
                     <View style={{flexDirection: 'row'}}>
                         <TouchableOpacity key={index} onPress={() => navigation.navigate('MatchDetails', {id: match[1]})}>
                         <Image source={{uri: match[2]}} style={styles.image} alt="User Profile Picture"/>
@@ -71,6 +61,7 @@ function MatchList(){
                     </View>
                         {/* <Text></Text> */}
                 </Card>
+                </TouchableOpacity>
                 ))}
         </ScrollView>
     )

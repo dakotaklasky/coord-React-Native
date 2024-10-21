@@ -7,7 +7,6 @@ import Ionicons from 'react-native-vector-icons/Ionicons'
 
 function MatchDetails({route}){
     const {id} = route.params
-    console.log(id)
 
     const [user, setUser] = useState([])
     const [refreshing, setRefreshing] = useState(false)

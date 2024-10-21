@@ -12,6 +12,7 @@ import MatchDetails from './MatchDetails'
 import AccountScreen from './AccountScreen'
 import Logout from './Logout'
 import Signup from './Signup'
+import Messages from './Messages'
 
 
 const loginName = 'Login'
@@ -22,6 +23,7 @@ const matchList = 'My Matches'
 const accountScreen = 'My Account'
 const logoutName = 'Logout'
 const signupName = 'Signup'
+const messagesName = 'Messages'
 
 const Stack = createNativeStackNavigator()
 const Tab = createBottomTabNavigator()
@@ -31,9 +33,11 @@ function MatchStack(){
         <Stack.Navigator>
             <Stack.Screen name={matchName} component={MatchList}/>
             <Stack.Screen name={matchDetails} component={MatchDetails}/>
+            <Stack.Screen name={messagesName} component={Messages}/>
         </Stack.Navigator>
     )
 }
+
 
 export default function MainContainer(){
 

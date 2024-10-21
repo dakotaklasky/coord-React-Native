@@ -22,6 +22,7 @@ if __name__ == '__main__':
         User.query.delete()
         PreferenceOption.query.delete()
         UserAttribute.query.delete()
+        Message.query.delete()
 
         unique_first_names = set()  # Use a set to ensure uniqueness
 
@@ -89,7 +90,7 @@ if __name__ == '__main__':
             user_attributes.append(attribute_8)
            
 
-        for j in range(1,80):       
+        for j in range(4,90):       
             like_1 = Like(matcher_id=j,matchee_id=j+2,accepted=-1)
             like_2 = Like(matcher_id=j,matchee_id=j+4, accepted=1)
             like_3 = Like(matcher_id=j,matchee_id=j+6, accepted=1)
@@ -97,37 +98,27 @@ if __name__ == '__main__':
             likes.append(like_2)
             likes.append(like_3)
 
-            match_1 = Match(matcher_id=j,matchee_id=j+1)
-            match_2 = Match(matcher_id=j,matchee_id=j+3)
-            match_3 = Match(matcher_id=j,matchee_id=j+5)
+            match_1 = Match(matcher_id=j,matchee_id=j+3)
+            match_2 = Match(matcher_id=j,matchee_id=j-3)
             likes.append(match_1)
             likes.append(match_2)
-            likes.append(match_3)
 
-            message_1 = Message(user_id= j, messagee=j+1, message=fake.text(), time=fake.date_time_between(start_date=date(2023,1,1), end_date=date(2024,10,20)).isoformat())
+            message_1 = Message(user_id= j, messagee=j-3, message=fake.text(), time=fake.date_time_between(start_date=date(2023,1,1), end_date=date(2024,10,20)).isoformat())
             message_2 = Message(user_id= j, messagee=j+3, message=fake.text(), time=fake.date_time_between(start_date=date(2023,1,1), end_date=date(2024,10,20)).isoformat())
-            message_3 = Message(user_id= j, messagee=j+5, message=fake.text(), time=fake.date_time_between(start_date=date(2023,1,1), end_date=date(2024,10,20)).isoformat())
             messages.append(message_1)
             messages.append(message_2)
-            messages.append(message_3)
-            message_4 = Message(user_id= j, messagee=j+1, message=fake.text(), time=fake.date_time_between(start_date=date(2023,1,1), end_date=date(2024,10,20)).isoformat())
+            message_4 = Message(user_id= j, messagee=j-3, message=fake.text(), time=fake.date_time_between(start_date=date(2023,1,1), end_date=date(2024,10,20)).isoformat())
             message_5 = Message(user_id= j, messagee=j+3, message=fake.text(), time=fake.date_time_between(start_date=date(2023,1,1), end_date=date(2024,10,20)).isoformat())
-            message_6 = Message(user_id= j, messagee=j+5, message=fake.text(), time=fake.date_time_between(start_date=date(2023,1,1), end_date=date(2024,10,20)).isoformat())
             messages.append(message_4)
             messages.append(message_5)
-            messages.append(message_6)
-            message_7 = Message(user_id= j, messagee=j+1, message=fake.text(), time=fake.date_time_between(start_date=date(2023,1,1), end_date=date(2024,10,20)).isoformat())
+            message_7 = Message(user_id= j, messagee=j-3, message=fake.text(), time=fake.date_time_between(start_date=date(2023,1,1), end_date=date(2024,10,20)).isoformat())
             message_8 = Message(user_id= j, messagee=j+3, message=fake.text(), time=fake.date_time_between(start_date=date(2023,1,1), end_date=date(2024,10,20)).isoformat())
-            message_9 = Message(user_id= j, messagee=j+5, message=fake.text(), time=fake.date_time_between(start_date=date(2023,1,1), end_date=date(2024,10,20)).isoformat())
             messages.append(message_7)
             messages.append(message_8)
-            messages.append(message_9)
-            message_10 = Message(user_id= j, messagee=j+1, message=fake.text(), time=fake.date_time_between(start_date=date(2023,1,1), end_date=date(2024,10,20)).isoformat())
+            message_10 = Message(user_id= j, messagee=j-3, message=fake.text(), time=fake.date_time_between(start_date=date(2023,1,1), end_date=date(2024,10,20)).isoformat())
             message_11 = Message(user_id= j, messagee=j+3, message=fake.text(), time=fake.date_time_between(start_date=date(2023,1,1), end_date=date(2024,10,20)).isoformat())
-            message_12 = Message(user_id= j, messagee=j+5, message=fake.text(), time=fake.date_time_between(start_date=date(2023,1,1), end_date=date(2024,10,20)).isoformat())
             messages.append(message_10)
             messages.append(message_11)
-            messages.append(message_12)
 
         pref_options = []
         pref_option1 = PreferenceOption(category='Gender',input_type='dropdown',options='Man,Woman,Nonbinary', icon="person-outline")

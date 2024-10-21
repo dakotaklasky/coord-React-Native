@@ -3,6 +3,7 @@ import {useState,useEffect} from "react"
 import { Card, Button } from 'react-native-paper';
 import { ScrollView, RefreshControl, View, Text, Image, StyleSheet } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons'
+import Constants from 'expo-constants'
 
 
 function MatchDetails({route}){
@@ -13,7 +14,7 @@ function MatchDetails({route}){
     const [userAttributeDict, setUserAttributeDict] = useState([])
 
     useEffect(() =>{
-        fetch(`http://192.168.1.83:5555/${id}`) 
+        fetch(`${Constants.expoConfig.extra.apiUrl}/${id}`) 
         .then(response => response.json())
         .then(json => {
             setUser(json)

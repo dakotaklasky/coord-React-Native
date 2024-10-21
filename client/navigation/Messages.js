@@ -3,16 +3,17 @@ import {useState,useEffect} from "react"
 import { Text, ScrollView, StyleSheet,TextInput,View, KeyboardAvoidingView, TouchableOpacity} from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { Card} from 'react-native-paper';
+import Constants from 'expo-constants'
 
 function Messages({route}){
 
     const {id} = route.params
 
     const [myMessages,setMyMessages] = useState()
-    const [newMessage, setNewMessage] = useState({})
+    const [currentMessage, setCurrentMessage] = useState([])
 
     async function getMessages(id){
-        await fetch(`http://192.168.1.83:5555/messages/${id}`,{
+        await fetch(`${Constants.expoConfig.extra.apiUrl}/messages/${id}`,{
             method: "GET",
             headers:{
                 "Content-Type": "application/json",
@@ -38,37 +39,34 @@ function Messages({route}){
         return <Text>Loading...</Text>;  // Optionally, a loading state
     }
 
-    function handleChange(id,value){
-        setNewMessage({
-            "user_id": SecureStore.getItem('username'),
-            "messagee": id,
-            "message": value,
-            "time": (new Date()).toISOString()
-        })
-    }
-
     function sendMessage(){
-        fetch(`http://192.168.1.83:5555/messages/${id}`,{
+        fetch(`${Constants.expoConfig.extra.apiUrl}/messages/${id}`,{
             method: "POST",
             headers:{
                 "Content-Type": "application/json",
                 "Accept": 'application/json',
                 "Authorization": SecureStore.getItem('username')
             },
-            body:{newMessage}
+            body: JSON.stringify({
+                "user_id": SecureStore.getItem('username'),
+                "messagee": id,
+                "message": currentMessage,
+                "time": (new Date()).toISOString().slice(0,-1)
+            })
         }) 
         .then(response => {
             if (!response.ok){throw new Error('Network response not ok')}
             else{return response.json()}
         })
-        .catch(error =>{console.error('There was a problem')})
+        .catch(error => error.json())
+        .then(errorData => console.log(errorData))
 
-        //call get messages?
+        setCurrentMessage([])
     }
 
 
     return(
-        <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset="145">
+        <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset="150">
         <ScrollView>
         {(myMessages['msgs']).map((msg,index) => (
             <Card key={index} style={msg.sender == 'messager' ? styles.rightStyle : styles.leftStyle} >
@@ -76,10 +74,10 @@ function Messages({route}){
             </Card>
         ))}
         <View style={styles.buttonContainer}>
-        <TextInput style={styles.input} onChange={(value) => handleChange(id,value)}></TextInput>
-        <TouchableOpacity style={styles.button} onPress={sendMessage}>
-        <Text style={styles.buttonText}>Send</Text>
-        </TouchableOpacity>
+            <TextInput value={currentMessage} style={styles.input} onChangeText={setCurrentMessage}></TextInput>
+            <TouchableOpacity style={styles.button} onPress={sendMessage}>
+                <Text style={styles.buttonText}>Send</Text>
+            </TouchableOpacity>
         </View>
         </ScrollView>
         </KeyboardAvoidingView>

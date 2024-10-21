@@ -2,6 +2,7 @@ import {useState} from "react"
 import PreferenceOptionForm from "./PreferenceOptionForm"
 import { ScrollView,Text } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
+import Constants from 'expo-constants'
 
 function Signup(){
     const [error,setError] = useState()
@@ -18,7 +19,7 @@ function Signup(){
     function handleSubmit(event){
         event.preventDefault()
 
-        fetch(`http://192.168.1.83:5555/signup`,{
+        fetch(`${Constants.expoConfig.extra.apiUrl}/signup`,{
             method: 'POST',
             headers:{
                 'Content-Type':'application/json',

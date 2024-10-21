@@ -4,6 +4,7 @@ import { Card } from 'react-native-paper';
 import { ScrollView, RefreshControl, View, Text, Image, StyleSheet } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import * as SecureStore from 'expo-secure-store';
+import Constants from 'expo-constants'
 
 
 function AccountPreview(){
@@ -13,7 +14,7 @@ function AccountPreview(){
     const [userAttributes,setUserAttributes] = useState([])
 
     useEffect(() =>{
-        fetch(`http://192.168.1.83:5555/myaccount`,{
+        fetch(`${Constants.expoConfig.extra.apiUrl}/myaccount`,{
             method: "GET",
             headers:{
                 "Content-Type": "application/json",
@@ -28,7 +29,7 @@ function AccountPreview(){
         .catch(error => {console.error('There was a problem')})
         .then(json => setUser(json))
 
-        fetch(`http://192.168.1.83:5555/user_attributes`,{
+        fetch(`${Constants.expoConfig.extra.apiUrl}/user_attributes`,{
             method: "GET",
             headers:{
                 "Content-Type": "application/json",
@@ -69,7 +70,7 @@ function AccountPreview(){
         return String(age);
     }
 
-    if (user == null){
+    if (SecureStore.getItem('username') === null){
         return (
             <View>
                 <Text>Please Login!</Text>

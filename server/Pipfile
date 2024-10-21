@@ -18,9 +18,9 @@ faker = "*"
 faker-graphics = "*"
 pillow = "*"
 bcrypt = "*"
+fff-profile-picture = "*"
 
 [dev-packages]
 
 [requires]
 python_version = "3.8"
-

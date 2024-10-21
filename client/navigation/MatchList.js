@@ -4,16 +4,18 @@ import { useNavigation } from '@react-navigation/native';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { Card } from 'react-native-paper';
+import Constants from 'expo-constants'
 
 
 function MatchList(){
+
 
     const navigation = useNavigation()
     const [myData,setMyData] = useState()
     const [messages, setMessages] = useState()
 
     useEffect(() =>{
-        fetch("http://192.168.1.83:5555/matches",{
+        fetch(`${Constants.expoConfig.extra.apiUrl}/matches`,{
             method: "GET",
             headers:{
                 "Content-Type": "application/json",
@@ -31,7 +33,20 @@ function MatchList(){
             }
             
             )
-        .catch(error =>{console.error('There was a problem')})
+        .catch(error => console.error('There was a problem'))
+        // .catch(error => {
+        //     if error.status code == 400
+        //         set error message value
+
+        //     else 
+        //         usenavigate to error page
+        // }
+
+            
+        //     error.json())
+        // .then(data => {
+        //     if data.statusCode 
+        // })
        
     }, [])
 

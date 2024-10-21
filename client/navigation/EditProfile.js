@@ -3,6 +3,7 @@ import {View,Text, ScrollView} from 'react-native'
 import * as SecureStore from 'expo-secure-store';
 import {useState,useEffect} from "react"
 import PreferenceOptionForm from "./PreferenceOptionForm"
+import Constants from 'expo-constants'
 
 export default function EditProfile({navigation}){
     const [msg, setMsg] = useState([])
@@ -10,7 +11,7 @@ export default function EditProfile({navigation}){
     const [userInfo, setUserInfo] = useState(true)
 
     useEffect(() =>{
-        fetch("http://192.168.1.83:5555/myaccount",{
+        fetch(`${Constants.expoConfig.extra.apiUrl}/myaccount`,{
             method: "GET",
             headers:{
                 "Content-Type": "application/json",
@@ -62,7 +63,7 @@ export default function EditProfile({navigation}){
     function handleSubmit(event){
         event.preventDefault()
 
-        fetch(`http://192.168.1.83:5555/myaccount`,{
+        fetch(`${Constants.expoConfig.extra.apiUrl}/myaccount`,{
             method: 'PATCH',
             headers:{
                 'Content-Type':'application/json',

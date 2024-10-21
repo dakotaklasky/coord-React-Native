@@ -31,7 +31,6 @@ if __name__ == '__main__':
 
         # Convert the set to a list if needed
         unique_first_names_list = list(unique_first_names)
-
         users = []
         for i in range(0,100):
             user = User(username = unique_first_names_list[i],bio = fake.text(), image = fake.image_url(250,250))

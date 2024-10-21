@@ -1,6 +1,7 @@
 import {useState,useEffect} from "react"
 import * as SecureStore from 'expo-secure-store';
 import {View,Text, TextInput, Button, StyleSheet, Image, KeyboardAvoidingView} from 'react-native'
+import Constants from 'expo-constants'
 
 
 function Login(){
@@ -20,7 +21,7 @@ function Login(){
 
     async function handleSubmit(){
 
-        await fetch(`http://192.168.1.83:5555/login`,{
+        await fetch(`${Constants.expoConfig.extra.apiUrl}/login`,{
             method: 'POST',
             headers:{
                 'Content-Type':'application/json',

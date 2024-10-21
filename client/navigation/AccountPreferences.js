@@ -3,6 +3,7 @@ import {ScrollView, View, Text} from 'react-native'
 import * as SecureStore from 'expo-secure-store';
 import {useState,useEffect} from "react"
 import PreferenceOptionForm from "./PreferenceOptionForm"
+import Constants from 'expo-constants'
 
 export default function AccountPreferences({navigation}){
 
@@ -12,7 +13,7 @@ export default function AccountPreferences({navigation}){
 
 
     useEffect( () => {
-        fetch(`http://192.168.1.83:5555/mypreferences`,{
+        fetch(`${Constants.expoConfig.extra.apiUrl}/mypreferences`,{
             method: "GET",
             headers:{
                 "Content-Type": "application/json",
@@ -41,10 +42,7 @@ export default function AccountPreferences({navigation}){
 
     }, [])
 
-    // console.log(formData)
-    // console.log(formData["Gender"])
-
-    if (formData.length === 0){
+    if (SecureStore.getItem('username') === null){
         return (
             <View>
                 <Text>Please Login!</Text>
@@ -72,7 +70,7 @@ export default function AccountPreferences({navigation}){
         console.log(formData)
         event.preventDefault()
 
-        fetch(`http://192.168.1.83:5555/mypreferences`,{
+        fetch(`${Constants.expoConfig.extra.apiUrl}/mypreferences`,{
             method: 'PATCH',
             headers:{
                 'Content-Type':'application/json',

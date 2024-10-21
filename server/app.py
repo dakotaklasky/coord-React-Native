@@ -13,7 +13,7 @@ from sqlalchemy.orm import class_mapper
 # Local imports
 from config import app, db
 # Add your model imports
-from models import User,Like,Match,Preference,PreferenceOption, UserAttribute
+from models import User,Like,Match,Preference,PreferenceOption, UserAttribute, Message
 
 #return user data
 @app.route('/<int:user_id>', methods=['GET'])
@@ -423,7 +423,8 @@ def get_messages(messagee_id):
     
     if request.method == 'POST':
         data = request.get_json()
-        new_message = Message(user_id=data.get('user_id'),messagee=data.get('messagee'),message=data.get('message'),time=data.get('time'))
+        user_id = User.query.filter(User.username == data.get('user_id')).first().id
+        new_message = Message(user_id=user_id,messagee=data.get('messagee'),message=data.get('message'),time=data.get('time'))
         db.session.add(new_message)
         db.session.commit()
         return new_message.to_dict(),200

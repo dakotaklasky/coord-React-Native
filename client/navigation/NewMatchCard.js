@@ -4,23 +4,24 @@ import { ScrollView, RefreshControl, View, Text, Image, StyleSheet } from 'react
 import { Card, Button } from 'react-native-paper';
 import * as SecureStore from 'expo-secure-store';
 import Ionicons from 'react-native-vector-icons/Ionicons'
+import Constants from 'expo-constants'
 
 function NewMatchCard(){
 
     const [username,setUsername] = useState()
-    const [refreshing, setRefreshing] = useState(false)
+    // const [refreshing, setRefreshing] = useState(false)
     const [user, setUser] = useState([])
     const [userAttributeDict, setUserAttributeDict] = useState([])
 
-    const onRefresh = () => {
-        setRefreshing(true);
-        if (SecureStore.getItem('username')){
-            setUsername(SecureStore.getItem('username'))
-        }
-        setTimeout(() => {
-          setRefreshing(false); // End refresh after the task is done
-        }, 2000);
-      };
+    // const onRefresh = () => {
+    //     setRefreshing(true);
+    //     if (SecureStore.getItem('username')){
+    //         setUsername(SecureStore.getItem('username'))
+    //     }
+    //     setTimeout(() => {
+    //       setRefreshing(false); // End refresh after the task is done
+    //     }, 2000);
+    //   };
     
     useEffect(() =>{
 
@@ -28,7 +29,7 @@ function NewMatchCard(){
             setUsername(SecureStore.getItem('username'))
         }
 
-        fetch((`http://192.168.1.83:5555/new_match`),{
+        fetch((`${Constants.expoConfig.extra.apiUrl}/new_match`),{
         method: "GET",
         headers:{
             "Content-Type": "application/json",
@@ -53,11 +54,13 @@ function NewMatchCard(){
 
     }, [])
 
-    if (username === undefined){
+
+    if (SecureStore.getItem('username') === null){
         return (
-        <View refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>
-        }>
+            <View>
+        {/* // <View refreshControl={
+        //     <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>
+        // }> */}
             <Text>Please Login!</Text>
         </View>)
     }
@@ -65,9 +68,10 @@ function NewMatchCard(){
     
     if(user.no_users){
         return (
-            <View refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>
-            }>
+            // <View refreshControl={
+            //     <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>
+            // }>
+            <View>
                 <Text>You went through all the users!</Text>
             </View>)
         
@@ -75,7 +79,7 @@ function NewMatchCard(){
 
 
     async function handleDislike(){
-        await fetch((`http://192.168.1.83:5555/like`),{
+        await fetch((`${Constants.expoConfig.extra.apiUrl}/like`),{
             method: "POST",
             headers:{
                 "Content-Type": "application/json",
@@ -94,7 +98,7 @@ function NewMatchCard(){
             console.error('There was a problem')
             })
 
-        await fetch((`http://192.168.1.83:5555/new_match`),{
+        await fetch((`${Constants.expoConfig.extra.apiUrl}/new_match`),{
             method: "GET",
             headers:{
                 "Content-Type": "application/json",
@@ -119,7 +123,7 @@ function NewMatchCard(){
     }
 
     async function handleLike(){
-        await fetch((`http://192.168.1.83:5555/like`),{
+        await fetch((`${Constants.expoConfig.extra.apiUrl}/like`),{
             method: "POST",
             headers:{
                 "Content-Type": "application/json",
@@ -145,7 +149,7 @@ function NewMatchCard(){
             console.error('There was a problem')
         })
 
-        await fetch((`http://192.168.1.83:5555/new_match`),{
+        await fetch((`${Constants.expoConfig.extra.apiUrl}/new_match`),{
             method: "GET",
             headers:{
                 "Content-Type": "application/json",
@@ -185,10 +189,11 @@ function NewMatchCard(){
 
 
     return(
-        <ScrollView  refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>
-        }
-        >
+        // <ScrollView  refreshControl={
+        //     <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>
+        // }
+        // >
+        <ScrollView>
             <View style = {styles.container}>
             <Card style={styles.card}>
                 <ScrollView>

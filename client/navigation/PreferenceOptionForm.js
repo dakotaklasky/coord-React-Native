@@ -3,6 +3,7 @@ import {View,Text, TextInput, Button, StyleSheet, StatusBar, Image, KeyboardAvoi
 import DateTimePicker from '@react-native-community/datetimepicker';
 import RNPickerSelect from 'react-native-picker-select';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
+import Constants from 'expo-constants'
 
 
 
@@ -11,7 +12,7 @@ function PreferenceOptionForm({handleSubmit,handleInputChange,getDefaultValue,us
     const [prefOptions, setPrefOptions] = useState([])
 
     useEffect(() => {
-    fetch(`http://192.168.1.83:5555/pref_options`) 
+    fetch(`${Constants.expoConfig.extra.apiUrl}/pref_options`) 
     .then(response => {
         if (!response.ok){throw new Error('Network response not ok')}
         else{return response.json()}

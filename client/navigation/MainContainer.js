@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import * as SecureStore from 'expo-secure-store';
 
 
 import Login from './Login'
@@ -40,6 +41,24 @@ function MatchStack(){
 
 
 export default function MainContainer(){
+
+    if(SecureStore.getItem('username') === null){
+        return(
+            <NavigationContainer>
+            <Tab.Navigator
+            initialRouteName={loginName}
+            screenOptions={<Ionicons name={focused ? 'log-in' : 'log-in-outline'} size={size} color={color}/>}
+            
+                <Tab.Screen name={homeName} component={NewMatchCard}/>
+                <Tab.Screen name={matchList} component={MatchStack}/>
+                <Tab.Screen name={accountScreen} component={AccountScreen}/>
+                <Tab.Screen name={logoutName} component={Logout}/>
+                <Tab.Screen name={loginName} component={Login}/>
+                <Tab.Screen name={signupName} component={Signup}/>
+            </Tab.Navigator>
+        </NavigationContainer> 
+        )
+    }
 
     return(
         <NavigationContainer>

@@ -1,10 +1,12 @@
 import {useState,useEffect} from "react"
 import * as SecureStore from 'expo-secure-store';
-import {View,Text, TextInput, Button, StyleSheet, Image, KeyboardAvoidingView} from 'react-native'
+import {View,Text, TextInput, Button, StyleSheet, Image, KeyboardAvoidingView, TouchableOpacity} from 'react-native'
 import Constants from 'expo-constants'
+import { useNavigation } from '@react-navigation/native';
 
 
-function Login(){
+function Login({setIsLoggedIn}){
+    const navigation = useNavigation()
     const [error,setError] = useState()
     const [msg, setMsg] = useState()
     const [username, setUsername] = useState("")
@@ -20,7 +22,6 @@ function Login(){
     
 
     async function handleSubmit(){
-
         await fetch(`${Constants.expoConfig.extra.apiUrl}/login`,{
             method: 'POST',
             headers:{
@@ -35,8 +36,8 @@ function Login(){
         .then(response => {
             if (response.ok){
                 setMsg('Log in successful!')
-                //store user_id instead of username
                 storeUserId(username)
+                setIsLoggedIn(true)
             } 
             else{
                 setMsg('Log in failed!')
@@ -65,9 +66,14 @@ function Login(){
                 <Text style={styles.label}>Password:</Text>
                 <TextInput value={password} onChangeText={setPassword} style= {styles.input} secureTextEntry placeholder="Enter your password"></TextInput>
                 <Button onPress={handleSubmit} title="Login"></Button>
+                <TouchableOpacity onPress={() => navigation.navigate('Signup')} style={styles.signupTouch}>
+                    <Text style={styles.signupText}>Sign up</Text>
+                </TouchableOpacity>
             </View>
+            
         </KeyboardAvoidingView>
 )}
+
 
 const styles = StyleSheet.create({
     container:{
@@ -115,7 +121,14 @@ const styles = StyleSheet.create({
         marginBottom: 15,
         padding: 10,
         borderRadius: 5
-    }
+    },
+    signupText:{
+        color: 'blue',
+        textDecorationLine: 'underline',
+    },
+    signupTouch:{
+        alignSelf: 'center'
+    },
 })
 
 export default Login;

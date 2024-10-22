@@ -9,10 +9,12 @@ function Messages({route}){
 
     const {id} = route.params
 
-    const [myMessages,setMyMessages] = useState()
+    const [myMessages,setMyMessages] = useState([])
     const [currentMessage, setCurrentMessage] = useState([])
+    // const [lastMessage,setLastMessage] = useState("")
 
     async function getMessages(id){
+        // setLastMessage("")
         await fetch(`${Constants.expoConfig.extra.apiUrl}/messages/${id}`,{
             method: "GET",
             headers:{
@@ -33,7 +35,7 @@ function Messages({route}){
 
     useEffect(() => {
         getMessages(id)
-    }, [id])
+    }, [])
 
     if (!myMessages || !myMessages['msgs']) {
         return <Text>Loading...</Text>;  // Optionally, a loading state
@@ -62,6 +64,7 @@ function Messages({route}){
         .then(errorData => console.log(errorData))
 
         setCurrentMessage([])
+        
     }
 
 
@@ -73,6 +76,13 @@ function Messages({route}){
             <Text>{msg.message}</Text>
             </Card>
         ))}
+        {/* {currentMessage == "" ? 
+        <></> :
+        <Card style={styles.rightStyle} >
+            <Text>{currentMessage}</Text>
+        </Card>
+        } */}
+        
         <View style={styles.buttonContainer}>
             <TextInput value={currentMessage} style={styles.input} onChangeText={setCurrentMessage}></TextInput>
             <TouchableOpacity style={styles.button} onPress={sendMessage}>

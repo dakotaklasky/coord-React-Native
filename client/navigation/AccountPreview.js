@@ -9,9 +9,10 @@ import Constants from 'expo-constants'
 
 function AccountPreview(){
 
-    const [user, setUser] = useState()
+    const [user, setUser] = useState([])
     const [refreshing, setRefreshing] = useState(false)
     const [userAttributes,setUserAttributes] = useState([])
+
 
     useEffect(() =>{
         fetch(`${Constants.expoConfig.extra.apiUrl}/myaccount`,{
@@ -26,8 +27,9 @@ function AccountPreview(){
             if (!response.ok){throw new Error('Network response not ok')}
             else{return response.json()}
         })
-        .catch(error => {console.error('There was a problem')})
         .then(json => setUser(json))
+        .catch(error => {console.error('There was a problem')})
+        
 
         fetch(`${Constants.expoConfig.extra.apiUrl}/user_attributes`,{
             method: "GET",
@@ -41,8 +43,9 @@ function AccountPreview(){
             if (!response.ok){throw new Error('Network response not ok')}
             else{return response.json()}
         })
-        .catch(error =>{console.error('There was a problem')})
         .then(json => setUserAttributes(json))
+        .catch(error =>{console.error('There was a problem')})
+        
     }, [])
 
     const onRefresh = () => {

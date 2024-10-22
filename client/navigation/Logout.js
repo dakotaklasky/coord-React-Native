@@ -3,7 +3,7 @@ import {View,Text, Button} from 'react-native'
 import {useState} from "react"
 import * as SecureStore from 'expo-secure-store';
 
-export default function Logout({navigation}){
+export default function Logout({setIsLoggedIn}){
 
     [msg, setMsg] = useState()
 
@@ -11,6 +11,7 @@ export default function Logout({navigation}){
         try{
             await SecureStore.deleteItemAsync('username')
             setMsg("Successfully logged out")
+            setIsLoggedIn(false)
         }
         catch{
             setMsg("Could not log out")

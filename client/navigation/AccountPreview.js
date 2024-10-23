@@ -1,11 +1,13 @@
 import * as React from 'react';
 import {useState,useEffect} from "react"
 import { Card } from 'react-native-paper';
-import { ScrollView, RefreshControl, View, Text, Image, StyleSheet } from 'react-native';
+import { ScrollView, RefreshControl, View, Text, Image, StyleSheet, FlatList, Dimensions} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import * as SecureStore from 'expo-secure-store';
 import Constants from 'expo-constants'
 import imageMap from './imageMap'
+
+const { width: screenWidth } = Dimensions.get('window');
 
 function AccountPreview(){
 
@@ -79,6 +81,11 @@ function AccountPreview(){
         )
     }
 
+    const renderItem = ({ item }) => (
+        <View style={styles.imageContainer}>
+          <Image source={item} style={styles.image} />
+        </View>
+      );
 
     return(
         <ScrollView>
@@ -86,11 +93,20 @@ function AccountPreview(){
             <Card style={styles.card}>
                 <ScrollView>
                 <Card.Content>
-                    <Image
-                        source={imageMap[user.id]}
-                        style={styles.image}
-                        alt="User Profile Picture"/>
-                    <Text style={styles.username}>{user.username}</Text>
+                    <View style={styles.container}>
+                        <FlatList
+                            data={[imageMap[user.id],{ uri: 'https://dummyimage.com/753x721' }]}
+                            renderItem={renderItem}
+                            keyExtractor={(item, index) => index.toString()}
+                            horizontal
+                            pagingEnabled // This allows for a snap effect
+                            showsHorizontalScrollIndicator={false} // Hide the horizontal scroll indicator
+                            snapToAlignment="center" // Align to the center of the screen
+                            snapToInterval={screenWidth} // Snap to the width of the screen
+                            decelerationRate="fast" // Makes the scroll faster
+                        />
+                    </View>
+                    <Text style={styles.username}>{user.name}</Text>
                     <Text style={styles.bio}>{user.bio}</Text>
                     {Object.entries(userAttributes).map(([key,value]) => (
                     value === null ? <React.Fragment key={key}/> :

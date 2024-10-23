@@ -26,6 +26,7 @@ export default function EditProfile({navigation}){
         .then(json => {
             const formDict = {}
 
+            formDict['name'] = json['name']
             formDict['username'] = json['username']
             formDict['image'] = json['image']
             formDict['bio'] = json['bio']

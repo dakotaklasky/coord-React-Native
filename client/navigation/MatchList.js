@@ -60,7 +60,7 @@ function MatchList(){
 
     const matches = []
     for (let m in myData){
-        matches.push([myData[m].username,myData[m].id])
+        matches.push([myData[m].name,myData[m].id])
     }
 
     return(

@@ -1,11 +1,13 @@
 import * as React from 'react';
 import {useState,useEffect} from "react"
-import { ScrollView, View, Text, Image, StyleSheet,ActivityIndicator, Alert, RefreshControl} from 'react-native';
+import { ScrollView, View, Text, Image, StyleSheet,ActivityIndicator, Alert, RefreshControl,FlatList, Dimensions} from 'react-native';
 import { Card, Button } from 'react-native-paper';
 import * as SecureStore from 'expo-secure-store';
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import Constants from 'expo-constants'
 import imageMap from './imageMap'
+
+const { width: screenWidth } = Dimensions.get('window');
 
 function NewMatchCard(){
     const [user, setUser] = useState([])
@@ -92,7 +94,8 @@ function NewMatchCard(){
     if(user.no_users){
         return (<ScrollView contentContainerstyle = {{ margin:16}} refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}>
-                <Text style={{fontSize: 20, margin:16, alignSelf:'center'}}>Please update your preferences!</Text>
+                <Text style={{fontSize: 20, margin:8, alignSelf:'center'}}>Out of Users</Text>
+                <Text style={{fontSize: 20, margin:8, alignSelf:'center'}}>Please update your preferences</Text>
                 </ScrollView>)
         
     }
@@ -206,7 +209,12 @@ function NewMatchCard(){
       
         return String(age);
       }
-      
+
+      const renderItem = ({ item }) => (
+        <View style={styles.imageContainer}>
+          <Image source={item} style={styles.image} />
+        </View>
+      );
     
 
     return(
@@ -215,11 +223,20 @@ function NewMatchCard(){
             <Card style={styles.card}>
                 <ScrollView>
                 <Card.Content>
-                    <Image
-                        source={imageMap[user.id]}
-                        style={styles.image}
-                        alt="User Profile Picture"/>
-                    <Text style={styles.username}>{user.username}</Text>
+                <View style={styles.container}>
+                    <FlatList
+                        data={[imageMap[user.id],{ uri: 'https://dummyimage.com/753x721' }]}
+                        renderItem={renderItem}
+                        keyExtractor={(item, index) => index.toString()}
+                        horizontal
+                        pagingEnabled // This allows for a snap effect
+                        showsHorizontalScrollIndicator={false} // Hide the horizontal scroll indicator
+                        snapToAlignment="center" // Align to the center of the screen
+                        snapToInterval={screenWidth} // Snap to the width of the screen
+                        decelerationRate="fast" // Makes the scroll faster
+                    />
+                </View>
+                    <Text style={styles.username}>{user.name}</Text>
                     <Text style={styles.bio}>{user.bio}</Text>
                     {Object.entries(userAttributeDict).map(([key,value]) => (
                     value === null ? <React.Fragment key={key}/> :

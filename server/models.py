@@ -53,6 +53,7 @@ class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, nullable=False, unique=True)
+    name = db.Column(db.String, nullable=False)
     _password_hash = db.Column(db.String) #nullable = false???
 
     image = db.Column(db.String)

@@ -301,7 +301,7 @@ def user_matches():
 def signup():
     data = request.get_json()
     try:
-        new_user = User(username=data.get('username'),image=data.get('image'),bio=data.get('bio'))
+        new_user = User(name = data.get('name'), username=data.get('username'),image=data.get('image'),bio=data.get('bio'))
         new_user.password_hash = data.get('password')
     except ValueError:
         return {"error":"invalid data"}, 401

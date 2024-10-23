@@ -59,10 +59,22 @@ function PreferenceOptionForm({handleSubmit,handleInputChange,getDefaultValue,us
         );
       }
     
+    function inchesToFeet(inches){
+        return String(Math.floor(inches/12)) + "'" + String((inches%12)) + '"'
+    }
+
+    function feetToInches(feet){
+        return parseInt(feet[0])*12 + parseInt(feet.slice(2,feet.length-1))
+    }
+    
     return (
         <ScrollView>
                 {userInfo ? 
                 (<View style={styles.container}>
+                     <View style={styles.formStyle}>
+                        <Text style={styles.label}>Name</Text>
+                        <TextInput style={styles.input} onChangeText={(value) => handleInputChange("name",value)} defaultValue={getDefaultValue("name")}></TextInput>
+                    </View>
                     <View style={styles.formStyle}>
                         <Text style={styles.label}>Username</Text>
                         <TextInput style={styles.input} onChangeText={(value) => handleInputChange("username",value)} defaultValue={getDefaultValue("username")}></TextInput>
@@ -124,15 +136,16 @@ function PreferenceOptionForm({handleSubmit,handleInputChange,getDefaultValue,us
                                 useNativeAndroidPickerStyle={false}
                             />):
                             
-                            (pref.category == "Height" ? <></> :
-                                // (<MultiSlider
-                                //     values={getDefaultValue(pref.category) ? [Math.min(...getDefaultValue(pref.category).map(Number)), Math.max(...getDefaultValue(pref.category).map(Number))] :["",""]}
-                                //     sliderLength={280}
-                                //     onValuesChange={([minvalue,maxvalue]) => handleInputChange(pref.category,[minvalue,maxvalue])} //convert to strings in func
-                                //     customMarker={(e) => <CustomMarker currentValue={String(Math.floor(e.currentValue/12))+"'"+String((e.currentValue)%12)+'"'} />}
-                                //     min = {pref.minval}
-                                //     max={pref.maxval}
-                                // />):
+                            (pref.category == "Height" ? 
+                                (<MultiSlider 
+                                    values={getDefaultValue(pref.category) ? [Math.min(...getDefaultValue(pref.category).map((val) => feetToInches(val))), Math.max(...getDefaultValue(pref.category).map((val) => feetToInches(val)))] :["",""]}
+                                    sliderLength={280}
+                                    onValuesChange={([minvalue,maxvalue]) => handleInputChange(pref.category,[inchesToFeet(minvalue),inchesToFeet(maxvalue)])}
+                                    customMarker={(e) => <CustomMarker currentValue={inchesToFeet(e.currentValue)} />}
+                                    min = {pref.minval}
+                                    max={pref.maxval}
+                                />)
+                              :
                                 (<MultiSlider 
                                     values={getDefaultValue(pref.category) ? [Math.min(...getDefaultValue(pref.category).map(Number)), Math.max(...getDefaultValue(pref.category).map(Number))] :["",""]}
                                     sliderLength={280}
@@ -213,3 +226,4 @@ const styles = StyleSheet.create({
   });
 
 export default PreferenceOptionForm;
+

@@ -59,9 +59,16 @@ export default function AccountPreferences({navigation}){
     }
 
     function handleInputChange(name,value){
+        if (Array.isArray(value)){
+            setFormData((prevData) => ({
+                ...prevData, [name]: value,
+            }))
+        }
+        else{
             setFormData((prevData) => ({
                 ...prevData, [name]: [value],
             }))
+        }
     }
 
     function handleSubmit(event){

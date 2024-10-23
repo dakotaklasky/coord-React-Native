@@ -39,13 +39,13 @@ if __name__ == '__main__':
         users = []
 
         for l in range(1,51):
-            user = User(username = unique_male_list[l],bio = fake.text(), image = f'"../assets/{l}.jpg"')
-            user.password_hash = user.username + 'password'
+            user = User(username=fake.user_name(), name = unique_male_list[l],bio = fake.text(), image = f'"../assets/{l}.jpg"')
+            user.password_hash = user.username + '123'
             users.append(user)
         
         for q in range(51,101):
-            user = User(username = unique_female_list[q],bio = fake.text(), image = f'"../assets/{q}.jpg"')
-            user.password_hash = user.username + 'password'
+            user = User(username=fake.user_name(), name = unique_female_list[q],bio = fake.text(), image = f'"../assets/{q}.jpg"')
+            user.password_hash = user.username + '123'
             users.append(user)
 
         db.session.add_all(users)
@@ -146,7 +146,7 @@ if __name__ == '__main__':
 
         pref_options = []
         pref_option1 = PreferenceOption(category='Gender',input_type='dropdown',options=",".join(gender_options), icon="person-outline")
-        pref_option2 = PreferenceOption(category='Height',input_type='interval',options=",".join(height_options), icon="stats-chart-outline")
+        pref_option2 = PreferenceOption(category='Height',input_type='interval',options=",".join(height_options), minval=48, maxval=84, icon="stats-chart-outline")
         pref_option3 = PreferenceOption(category='Age', input_type='interval',minval=18, maxval = 100, icon="balloon-outline")
         pref_option4 = PreferenceOption(category='Ethnicity',input_type='dropdown', options=",".join(ethnicity_options),icon="earth-outline")
         pref_option5 = PreferenceOption(category='Religion',input_type='dropdown',options=",".join(religion_options), icon="globe-outline")

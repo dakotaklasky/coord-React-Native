@@ -4,7 +4,7 @@ import { Card, Button } from 'react-native-paper';
 import { ScrollView, RefreshControl, View, Text, Image, StyleSheet } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import Constants from 'expo-constants'
-
+import imageMap from './imageMap'
 
 function MatchDetails({route}){
     const {id} = route.params
@@ -12,6 +12,7 @@ function MatchDetails({route}){
     const [user, setUser] = useState([])
     const [refreshing, setRefreshing] = useState(false)
     const [userAttributeDict, setUserAttributeDict] = useState([])
+    const [icons, setIcons] = useState([])
 
     useEffect(() =>{
         fetch(`${Constants.expoConfig.extra.apiUrl}/${id}`) 
@@ -24,7 +25,15 @@ function MatchDetails({route}){
             
             setUserAttributeDict(attribute_dict)
         })
-
+    
+        fetch(`${Constants.expoConfig.extra.apiUrl}/pref_icons`)
+        .then(response => {
+            if (!response.ok){throw new Error('Network response not ok')}
+            else{return response.json()}
+        })
+        .then(json => {
+            setIcons(json)})
+        .catch(error => console.error('There was a problem'))
 
     }, [])
 
@@ -64,17 +73,29 @@ function MatchDetails({route}){
                 <ScrollView>
                 <Card.Content>
                     <Image
-                        source={{uri: user.image}}
+                        source={imageMap[user.id]}
                         style={styles.image}
                         alt="User Profile Picture"/>
                     <Text style={styles.username}>{user.username}</Text>
                     <Text style={styles.bio}>{user.bio}</Text>
                     {Object.entries(userAttributeDict).map(([key,value]) => (
+                      value === null ? <React.Fragment key={key}/>  :
                     key == "Birthdate" ?
-                    <Text key={key}><Ionicons name="balloon-outline" size={16}></Ionicons> {calculateAge(value)}</Text> :
+                    <Card key={key} style={styles.detailCard}>
+                        <View style={styles.row}>
+                          <Ionicons name="balloon-outline" size={16}/>
+                          <Text> {calculateAge(value)}</Text>
+                        </View>
+                    </Card>
+                     :
                     key == "Date" ?
                     <Text key={key}></Text>:
-                        <Text key={key}><Ionicons name="glasses-outline" size={16}></Ionicons> {value}</Text>
+                    <Card key={key} style={styles.detailCard}>
+                        <View style={styles.row}>
+                          <Ionicons name={icons[key]} size={24}/>
+                          <Text style={{marginLeft: 8}}>{value}</Text>
+                        </View>
+                    </Card>
                         
                 ))}
                 </Card.Content>
@@ -128,7 +149,15 @@ const styles = StyleSheet.create({
     button: {
         justifyContent: 'center',
         alignItems: 'center'
-    }
+    },
+    detailCard:{
+      margin: 5,
+      padding: 3,
+  },
+  row:{
+      flexDirection: 'row',
+      alignItems: 'center'
+  }
   });
 
 export default MatchDetails;

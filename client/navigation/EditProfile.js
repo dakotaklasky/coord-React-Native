@@ -1,12 +1,11 @@
 import * as React from 'react'
-import {View,Text, ScrollView} from 'react-native'
+import {View,Text, ScrollView, ActivityIndicator, Alert} from 'react-native'
 import * as SecureStore from 'expo-secure-store';
 import {useState,useEffect} from "react"
 import PreferenceOptionForm from "./PreferenceOptionForm"
 import Constants from 'expo-constants'
 
 export default function EditProfile({navigation}){
-    const [msg, setMsg] = useState([])
     const [formData, setFormData] = useState([])
     const [userInfo, setUserInfo] = useState(true)
 
@@ -41,8 +40,8 @@ export default function EditProfile({navigation}){
     
     if (formData.length === 0){
         return (
-            <View>
-                <Text>Please Login!</Text>
+            <View style={{justifyContent: 'center'}}>
+                <ActivityIndicator size="large"/>
             </View>
         )
     }
@@ -73,9 +72,9 @@ export default function EditProfile({navigation}){
             body: JSON.stringify(formData)
         })
         .then(response => {
-            if (response.ok){setMsg('Update successful')}
+            if (response.ok){Alert.alert('Success', 'Profile updated successfully!')}
             else{
-                setMsg('Update failed')
+                Alert.alert('Fail', 'Profile update failed!')
                 return Promise.reject(response)
             }
         })
@@ -85,7 +84,6 @@ export default function EditProfile({navigation}){
 
   return(
     <ScrollView contentContainerStyle={{paddingBottom: 60}}>
-        {msg ? <Text>{msg}</Text> : null}
         <PreferenceOptionForm handleSubmit={handleSubmit} handleInputChange={handleInputChange} getDefaultValue={getDefaultValue} userInfo = {userInfo}/>
     </ScrollView>
   )

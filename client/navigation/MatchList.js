@@ -1,11 +1,11 @@
 import * as React from 'react';
 import {useState,useEffect} from "react"
 import { useNavigation } from '@react-navigation/native';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image, ActivityIndicator } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { Card } from 'react-native-paper';
 import Constants from 'expo-constants'
-
+import imageMap from './imageMap'
 
 function MatchList(){
 
@@ -52,15 +52,15 @@ function MatchList(){
 
     if(myData == null){
         return (
-            <View>
-                <Text>Please login!</Text>
+            <View style={{justifyContent: 'center'}}>
+                <ActivityIndicator size="large"/>
             </View>
         )
     }
 
     const matches = []
     for (let m in myData){
-        matches.push([myData[m].username,myData[m].id,myData[m].image])
+        matches.push([myData[m].username,myData[m].id])
     }
 
     return(
@@ -70,7 +70,7 @@ function MatchList(){
                 <Card style={styles.card} >
                     <View style={{flexDirection: 'row'}}>
                         <TouchableOpacity key={index} onPress={() => navigation.navigate('MatchDetails', {id: match[1]})}>
-                        <Image source={{uri: match[2]}} style={styles.image} alt="User Profile Picture"/>
+                        <Image source={imageMap[match[1]]} style={styles.image} alt="User Profile Picture"/>
                         </TouchableOpacity>
                         <Text style={styles.text}>{match[0]}</Text>
                     </View>

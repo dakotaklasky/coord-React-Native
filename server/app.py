@@ -163,7 +163,8 @@ def new_match():
         if user_preferences[i].pref_category in pref_dict:
             pref_dict[user_preferences[i].pref_category].append(user_preferences[i].pref_value)
         else:
-            pref_dict[user_preferences[i].pref_category]= [user_preferences[i].pref_value]
+            if user_preferences[i].pref_value != None:
+                pref_dict[user_preferences[i].pref_category]= [user_preferences[i].pref_value]
 
     
     #available_users = User.query.filter(User.id.not_in(prev_likes_ids)).all()
@@ -333,6 +334,14 @@ def signup():
 def pref_options():
     pref_options = PreferenceOption.query.all()
     return [p.to_dict() for p in pref_options], 200
+
+@app.route('/pref_icons',methods=['GET'])
+def pref_icons():
+    pref_options = PreferenceOption.query.all()
+    icon_dict = {}
+    for i in range(0,len(pref_options)):
+        icon_dict[pref_options[i].category] = pref_options[i].icon
+    return icon_dict, 200
 
 @app.route('/user_attributes',methods=['GET', 'PATCH'])
 def user_attributes():

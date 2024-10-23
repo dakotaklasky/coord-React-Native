@@ -5,14 +5,13 @@ import { ScrollView, RefreshControl, View, Text, Image, StyleSheet } from 'react
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import * as SecureStore from 'expo-secure-store';
 import Constants from 'expo-constants'
-
+import imageMap from './imageMap'
 
 function AccountPreview(){
 
     const [user, setUser] = useState([])
-    const [refreshing, setRefreshing] = useState(false)
     const [userAttributes,setUserAttributes] = useState([])
-
+    const [icons, setIcons] = useState([])
 
     useEffect(() =>{
         fetch(`${Constants.expoConfig.extra.apiUrl}/myaccount`,{
@@ -45,18 +44,17 @@ function AccountPreview(){
         })
         .then(json => setUserAttributes(json))
         .catch(error =>{console.error('There was a problem')})
+
+        fetch(`${Constants.expoConfig.extra.apiUrl}/pref_icons`)
+        .then(response => {
+            if (!response.ok){throw new Error('Network response not ok')}
+            else{return response.json()}
+        })
+        .then(json => {
+            setIcons(json)})
+        .catch(error => console.error('There was a problem'))
         
     }, [])
-
-    const onRefresh = () => {
-        setRefreshing(true);
-        if (SecureStore.getItem('username')){
-            setUsername(SecureStore.getItem('username'))
-        }
-        setTimeout(() => {
-          setRefreshing(false); // End refresh after the task is done
-        }, 2000);
-      };
 
     function calculateAge(birthDate) {
         const today = new Date();
@@ -83,26 +81,34 @@ function AccountPreview(){
 
 
     return(
-        <ScrollView  refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>
-        }
-        >
+        <ScrollView>
             <View style = {styles.container}>
             <Card style={styles.card}>
                 <ScrollView>
                 <Card.Content>
                     <Image
-                        source={{uri: user.image}}
+                        source={imageMap[user.id]}
                         style={styles.image}
                         alt="User Profile Picture"/>
                     <Text style={styles.username}>{user.username}</Text>
                     <Text style={styles.bio}>{user.bio}</Text>
                     {Object.entries(userAttributes).map(([key,value]) => (
+                    value === null ? <React.Fragment key={key}/> :
                     key == "Birthdate" ?
-                    <Text key={key}><Ionicons name="balloon-outline" size={16}></Ionicons> {calculateAge(value)}</Text> :
+                    <Card key={key} style={styles.detailCard}>
+                        <View style={styles.row}>
+                            <Ionicons name="balloon-outline" size={24}/>
+                            <Text > {calculateAge(value)}</Text> 
+                        </View>
+                    </Card> :
                     key == "Date" ?
                     <Text key={key}></Text>:
-                        <Text key={key}><Ionicons name="glasses-outline" size={16}></Ionicons> {value}</Text>
+                    <Card key={key} style={styles.detailCard}>
+                        <View style={styles.row}>
+                            <Ionicons name={icons[key]} size={24}/>
+                            <Text  style={{marginLeft: 8}}>{value}</Text>
+                        </View>
+                </Card>
                         
                 ))}
                 </Card.Content>
@@ -155,6 +161,14 @@ const styles = StyleSheet.create({
     },
     button: {
         justifyContent: 'center',
+        alignItems: 'center'
+    },
+    detailCard:{
+        margin: 5,
+        padding: 3,
+    },
+    row:{
+        flexDirection: 'row',
         alignItems: 'center'
     }
   });

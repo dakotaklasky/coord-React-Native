@@ -15,6 +15,7 @@ import AccountScreen from './AccountScreen'
 import Logout from './Logout'
 import Signup from './Signup'
 import Messages from './Messages'
+import ErrorScreen from './ErrorScreen'
 
 
 const loginName = 'Login'
@@ -27,11 +28,13 @@ const logoutName = 'Logout'
 const signupName = 'Signup'
 const messagesName = 'Messages'
 const loginSignup = 'Welcome'
+const errorName = 'Error'
 
 const Stack = createNativeStackNavigator()
 const Tab = createBottomTabNavigator()
 
-
+// "apiUrl": "http://192.168.1.83:5555"
+//"apiUrl": "http://10.129.3.243:5555"
 
 
 export default function MainContainer(){
@@ -56,6 +59,7 @@ export default function MainContainer(){
                     {props => <Login {...props} setIsLoggedIn={setIsLoggedIn} />}
                 </Stack.Screen>
                 <Stack.Screen name={signupName} component={Signup}/>
+                <Stack.Screen name={errorName} component={ErrorScreen}/>
             </Stack.Navigator>
         )
     }

@@ -46,31 +46,49 @@ function PreferenceOptionForm({handleSubmit,handleInputChange,getDefaultValue,us
             const [year, month, day] = birthday.split('-').map(Number)
             return new Date(year, month -1, day)
         }
-        else{
-            return new Date()
-        }
     }
+
+    const CustomMarker = ({ currentValue }) => {
+        return (
+          <View style={styles.markerContainer}>
+            <View style={styles.markerLabel}>
+              <Text style={styles.markerLabelText}>{currentValue}</Text>
+            </View>
+            <View style={styles.marker} />
+          </View>
+        );
+      }
     
     return (
         <ScrollView>
                 {userInfo ? 
                 (<View style={styles.container}>
-                <Text style={styles.label}>Username:</Text>
-                <TextInput style={styles.input} onChangeText={(value) => handleInputChange("username",value)} defaultValue={getDefaultValue("username")}></TextInput>
-                <Text style={styles.label}>Password:</Text>
-                <TextInput secureTextEntry={true} style={styles.input} onChangeText={(value) => handleInputChange("password",value)}></TextInput>
-                <Text style={styles.label}>Image:</Text>
-                <TextInput style={styles.input} onChangeText={(value) => handleInputChange("image",value)} defaultValue={getDefaultValue("image")}></TextInput>
-                <Text style={styles.label}>Bio:</Text>
-                <TextInput style={styles.input} onChangeText={(value) => handleInputChange("bio",value)} defaultValue={getDefaultValue("bio")}></TextInput>
-                <Text style={styles.label}>Birthdate:</Text>
-                <DateTimePicker value={getBirthdate(getDefaultValue("Birthdate"))} onChange={(value) => handleInputChange("birthdate",value)} mode="date" display="default" ></DateTimePicker>
+                    <View style={styles.formStyle}>
+                        <Text style={styles.label}>Username</Text>
+                        <TextInput style={styles.input} onChangeText={(value) => handleInputChange("username",value)} defaultValue={getDefaultValue("username")}></TextInput>
+                    </View>
+                    <View style={styles.formStyle}>
+                        <Text style={styles.label}>Password</Text>
+                        <TextInput secureTextEntry={true} style={styles.input} onChangeText={(value) => handleInputChange("password",value)}></TextInput>
+                    </View>
+                    <View style={styles.formStyle}>
+                        <Text style={styles.label}>Image</Text>
+                        <TextInput style={styles.input} onChangeText={(value) => handleInputChange("image",value)} defaultValue={getDefaultValue("image")}></TextInput>
+                    </View>
+                    <View style={styles.formStyle}>
+                        <Text style={styles.label}>Bio</Text>
+                        <TextInput multiline={true} style={styles.input} onChangeText={(value) => handleInputChange("bio",value)} defaultValue={getDefaultValue("bio")}></TextInput>
+                    </View>
+                    <View style={styles.formStyle}>
+                        <Text style={styles.label}>Birthdate</Text>
+                        <DateTimePicker value={getBirthdate(getDefaultValue("Birthdate"))} onChange={(value) => handleInputChange("birthdate",value)} mode="date" display="default" ></DateTimePicker>
+                    </View>
                 </View>) :
                 (<View></View>)}
                 <View style={styles.container}>
                     {prefOptions.map((pref,index) => (
                         
-                        <View key={index}>
+                        <View key={index} style={styles.formStyle}>
                             <Text style={styles.label}>{pref.category}</Text>
                             {pref.input_type == "dropdown" ? (
                                 <RNPickerSelect
@@ -90,15 +108,41 @@ function PreferenceOptionForm({handleSubmit,handleInputChange,getDefaultValue,us
                                 />
                             ) : (
                                 userInfo ? 
-                            (<TextInput style={styles.input} onChangeText={(value) => handleInputChange(pref.category,value)} defaultValue={getDefaultValue(pref.category) || ""}></TextInput>):
+                            (<RNPickerSelect
+                                style= {{
+                                    inputIOS: styles.inputIOS,
+                                    inputAndroid: styles.inputAndroid,
+                                    placeholder: styles.placeholder
+                                }}
+                                value = {getDefaultValue(pref.category)}
+                                onValueChange={(itemValue) => handleInputChange(pref.category,itemValue)}
 
-                            (<MultiSlider 
-                                values={getDefaultValue(pref.category) ? [Math.min(...getDefaultValue(pref.category).map(Number)), Math.max(...getDefaultValue(pref.category).map(Number))] :["",""]}
-                                sliderLength={280}
-                                onValuesChange={([minvalue,maxvalue]) => handleInputChange(pref.category,[minvalue,maxvalue])}
-                                min = {pref.minval}
-                                max={pref.maxval}
-                                />))}
+                                items={pref.option_array.map((option) => ({
+                                    label:option,
+                                    value:option
+                                }))}
+                                useNativeAndroidPickerStyle={false}
+                            />):
+                            
+                            (pref.category == "Height" ? <></> :
+                                // (<MultiSlider
+                                //     values={getDefaultValue(pref.category) ? [Math.min(...getDefaultValue(pref.category).map(Number)), Math.max(...getDefaultValue(pref.category).map(Number))] :["",""]}
+                                //     sliderLength={280}
+                                //     onValuesChange={([minvalue,maxvalue]) => handleInputChange(pref.category,[minvalue,maxvalue])} //convert to strings in func
+                                //     customMarker={(e) => <CustomMarker currentValue={String(Math.floor(e.currentValue/12))+"'"+String((e.currentValue)%12)+'"'} />}
+                                //     min = {pref.minval}
+                                //     max={pref.maxval}
+                                // />):
+                                (<MultiSlider 
+                                    values={getDefaultValue(pref.category) ? [Math.min(...getDefaultValue(pref.category).map(Number)), Math.max(...getDefaultValue(pref.category).map(Number))] :["",""]}
+                                    sliderLength={280}
+                                    onValuesChange={([minvalue,maxvalue]) => handleInputChange(pref.category,[minvalue,maxvalue])}
+                                    customMarker={(e) => <CustomMarker currentValue={e.currentValue} />}
+                                    min = {pref.minval}
+                                    max={pref.maxval}
+                                    />)
+                            )                         
+                    )}
                         </View>
                     ))}
                 </View>
@@ -145,6 +189,27 @@ const styles = StyleSheet.create({
         color: 'gray', // Placeholder text color
         fontSize: 16,
       },
+      markerContainer: {
+        alignItems: 'center',
+      },
+      markerLabel: {
+        padding: 5,
+        borderRadius: 5,
+        marginBottom: 5,
+      },
+      markerLabelText: {
+        color: '#000',
+        fontSize: 16,
+      },
+      marker: {
+        height: 20,
+        width: 20,
+        borderRadius: 10,
+        backgroundColor: '#007aff',
+      },
+      formStyle: {
+        margin: 5
+      }
   });
 
 export default PreferenceOptionForm;

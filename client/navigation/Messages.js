@@ -11,10 +11,8 @@ function Messages({route}){
 
     const [myMessages,setMyMessages] = useState([])
     const [currentMessage, setCurrentMessage] = useState([])
-    // const [lastMessage,setLastMessage] = useState("")
 
     async function getMessages(id){
-        // setLastMessage("")
         await fetch(`${Constants.expoConfig.extra.apiUrl}/messages/${id}`,{
             method: "GET",
             headers:{
@@ -38,7 +36,7 @@ function Messages({route}){
     }, [])
 
     if (!myMessages || !myMessages['msgs']) {
-        return <Text>Loading...</Text>;  // Optionally, a loading state
+        return <Text>Loading...</Text>;  
     }
 
     function sendMessage(){
@@ -60,11 +58,12 @@ function Messages({route}){
             if (!response.ok){throw new Error('Network response not ok')}
             else{return response.json()}
         })
+        .then(json => {
+            getMessages(id)
+            setCurrentMessage('')
+        })
         .catch(error => error.json())
         .then(errorData => console.log(errorData))
-
-        setCurrentMessage([])
-        
     }
 
 
@@ -76,13 +75,6 @@ function Messages({route}){
             <Text>{msg.message}</Text>
             </Card>
         ))}
-        {/* {currentMessage == "" ? 
-        <></> :
-        <Card style={styles.rightStyle} >
-            <Text>{currentMessage}</Text>
-        </Card>
-        } */}
-        
         <View style={styles.buttonContainer}>
             <TextInput value={currentMessage} style={styles.input} onChangeText={setCurrentMessage}></TextInput>
             <TouchableOpacity style={styles.button} onPress={sendMessage}>

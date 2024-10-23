@@ -1,13 +1,11 @@
 import * as React from 'react'
-import {ScrollView, View, Text} from 'react-native'
+import {ScrollView, View, Text, ActivityIndicator, Alert} from 'react-native'
 import * as SecureStore from 'expo-secure-store';
 import {useState,useEffect} from "react"
 import PreferenceOptionForm from "./PreferenceOptionForm"
 import Constants from 'expo-constants'
 
 export default function AccountPreferences({navigation}){
-
-    const [msg, setMsg] = useState()
     const [formData, setFormData] = useState([])
     const [userInfo,setUserInfo] = useState(false)
 
@@ -42,10 +40,10 @@ export default function AccountPreferences({navigation}){
 
     }, [])
 
-    if (SecureStore.getItem('username') === null){
+    if (formData.length === 0){
         return (
-            <View>
-                <Text>Please Login!</Text>
+            <View style={{justifyContent: 'center'}}>
+                <ActivityIndicator size="large"/>
             </View>
         )
     }
@@ -80,9 +78,9 @@ export default function AccountPreferences({navigation}){
             body: JSON.stringify(formData)
         })
         .then(response => {
-            if (response.ok){setMsg('Update successful')}
+            if (response.ok){Alert.alert('Success', 'Preferences updated successfully!')}
             else{
-                setMsg('Update failed')
+                Alert.alert('Fail', 'Preferences update failed!')
                 return Promise.reject(response)
             }
         })
@@ -91,7 +89,6 @@ export default function AccountPreferences({navigation}){
 
   return(
       <ScrollView contentContainerStyle={{paddingBottom: 60}}>
-          {msg ? <Text>{msg}</Text> : null}
           <PreferenceOptionForm handleSubmit={handleSubmit} handleInputChange={handleInputChange} getDefaultValue={getDefaultValue} userInfo = {userInfo}/>
 
       </ScrollView>

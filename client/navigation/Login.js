@@ -7,7 +7,6 @@ import { useNavigation } from '@react-navigation/native';
 
 function Login({setIsLoggedIn}){
     const navigation = useNavigation()
-    const [error,setError] = useState()
     const [msg, setMsg] = useState()
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
@@ -44,31 +43,25 @@ function Login({setIsLoggedIn}){
                 return Promise.reject(response)
             }
         })
-        .catch(response => response.json())
-        .then(data => setError(data))
+        .catch(error => console.error('There was a problem'))
 
         setUsername("")
         setPassword("")
     }
 
-    const errorElement = error ? <Text style={{color: 'red'}}>{error.error}</Text> : null
     return (
         <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset="200" style={styles.container}>
             <View style={styles.form}>
-            <Image
-                source={require("../Implosion.png")}
-                style= {styles.image}/>
-
-            {msg ? <Text>{msg}</Text> : null}
-            {errorElement}
-                <Text style={styles.label}>Username:</Text>
-                <TextInput value={username} onChangeText={setUsername} style = {styles.input} placeholder="Enter your username"></TextInput>
-                <Text style={styles.label}>Password:</Text>
-                <TextInput value={password} onChangeText={setPassword} style= {styles.input} secureTextEntry placeholder="Enter your password"></TextInput>
-                <Button onPress={handleSubmit} title="Login"></Button>
-                <TouchableOpacity onPress={() => navigation.navigate('Signup')} style={styles.signupTouch}>
-                    <Text style={styles.signupText}>Sign up</Text>
-                </TouchableOpacity>
+            <Text style={styles.logoStyle}>coord</Text>
+            {msg ? <Text style={{color:'red'}}>{msg}</Text> : null}
+            <Text style={styles.label}>Username:</Text>
+            <TextInput value={username} onChangeText={setUsername} style = {styles.input} placeholder="Enter your username"></TextInput>
+            <Text style={styles.label}>Password:</Text>
+            <TextInput value={password} onChangeText={setPassword} style= {styles.input} secureTextEntry placeholder="Enter your password"></TextInput>
+            <Button onPress={handleSubmit} title="Login"></Button>
+            <TouchableOpacity onPress={() => navigation.navigate('Signup')} style={styles.signupTouch}>
+                <Text style={styles.signupText}>Sign up</Text>
+            </TouchableOpacity>
             </View>
             
         </KeyboardAvoidingView>
@@ -129,6 +122,11 @@ const styles = StyleSheet.create({
     signupTouch:{
         alignSelf: 'center'
     },
+    logoStyle:{
+        color: '#FF4B33',
+        fontSize: 40,
+        textAlign: 'center'
+    }
 })
 
 export default Login;

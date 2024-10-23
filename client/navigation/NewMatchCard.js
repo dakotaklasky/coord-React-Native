@@ -1,79 +1,99 @@
 import * as React from 'react';
 import {useState,useEffect} from "react"
-import { ScrollView, RefreshControl, View, Text, Image, StyleSheet } from 'react-native';
+import { ScrollView, View, Text, Image, StyleSheet,ActivityIndicator, Alert, RefreshControl} from 'react-native';
 import { Card, Button } from 'react-native-paper';
 import * as SecureStore from 'expo-secure-store';
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import Constants from 'expo-constants'
+import imageMap from './imageMap'
 
 function NewMatchCard(){
-
-    const [username,setUsername] = useState()
-    // const [refreshing, setRefreshing] = useState(false)
     const [user, setUser] = useState([])
     const [userAttributeDict, setUserAttributeDict] = useState([])
+    const [icons, setIcons] = useState([])
+    const [refreshing, setRefreshing] = useState(false)
 
-    // const onRefresh = () => {
-    //     setRefreshing(true);
-    //     if (SecureStore.getItem('username')){
-    //         setUsername(SecureStore.getItem('username'))
-    //     }
-    //     setTimeout(() => {
-    //       setRefreshing(false); // End refresh after the task is done
-    //     }, 2000);
-    //   };
-    
+
     useEffect(() =>{
+        fetch((`${Constants.expoConfig.extra.apiUrl}/new_match`),{
+            method: "GET",
+            headers:{
+                "Content-Type": "application/json",
+                "Accept": 'application/json',
+                "Authorization": SecureStore.getItem('username')
+            },
+            })
+            .then(response => {
+                if (!response.ok){throw new Error('Network response not ok')}
+                else{return response.json()}
+            })
+            .then(json => {
+                setUser(json)
+                const attribute_dict = {}
+                for(const row in json.attributes)
+                    attribute_dict[json.attributes[row].attribute_category] = json.attributes[row].attribute_value
+                
+                setUserAttributeDict(attribute_dict)
+            })
+            .catch(error =>{console.error('There was a problem')})
+    
+            fetch(`${Constants.expoConfig.extra.apiUrl}/pref_icons`)
+                .then(response => {
+                    if (!response.ok){throw new Error('Network response not ok')}
+                    else{return response.json()}
+                })
+                .then(json => {
+                    setIcons(json)})
+                .catch(error => console.error('There was a problem'))
+    
+        }, [])
 
-        if (SecureStore.getItem('username')){
-            setUsername(SecureStore.getItem('username'))
-        }
+
+    const onRefresh = () => {
+        setRefreshing(true);
 
         fetch((`${Constants.expoConfig.extra.apiUrl}/new_match`),{
-        method: "GET",
-        headers:{
-            "Content-Type": "application/json",
-            "Accept": 'application/json',
-            "Authorization": SecureStore.getItem('username')
-        },
-        })
-        .then(response => {
-            if (!response.ok){throw new Error('Network response not ok')}
-            else{return response.json()}
-        })
-        .then(json => {
-            setUser(json)
-            const attribute_dict = {}
-            for(const row in json.attributes)
-                attribute_dict[json.attributes[row].attribute_category] = json.attributes[row].attribute_value
-            
-            setUserAttributeDict(attribute_dict)
-        })
-        .catch(error =>{console.error('There was a problem')})
+            method: "GET",
+            headers:{
+                "Content-Type": "application/json",
+                "Accept": 'application/json',
+                "Authorization": SecureStore.getItem('username')
+            },
+            })
+            .then(response => {
+                if (!response.ok){throw new Error('Network response not ok')}
+                else{return response.json()}
+            })
+            .then(json => {
+                setUser(json)
+                const attribute_dict = {}
+                for(const row in json.attributes)
+                    attribute_dict[json.attributes[row].attribute_category] = json.attributes[row].attribute_value
+                
+                setUserAttributeDict(attribute_dict)
+            })
+            .catch(error =>{console.error('There was a problem')})
+
+        setTimeout(() => {
+            setRefreshing(false);
+        }, 2000); 
+    };
 
 
-    }, [])
-
-
-    if (SecureStore.getItem('username') === null){
+    if (userAttributeDict.length === 0){
         return (
-            <View>
-        {/* // <View refreshControl={
-        //     <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>
-        // }> */}
-            <Text>Please Login!</Text>
-        </View>)
+            <View style={{justifyContent: 'center'}}>
+                <ActivityIndicator size="large"/>
+            </View>
+        )
     }
 
     
     if(user.no_users){
-        return (
-            // <View refreshControl={
-            //     <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>
-            // }>
-            <View>
-                <Text>You went through all the users!</Text>
-            </View>)
+        return (<ScrollView contentContainerstyle = {{ margin:16}} refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}>
+                <Text style={{fontSize: 20, margin:16, alignSelf:'center'}}>Please update your preferences!</Text>
+                </ScrollView>)
         
     }
 
@@ -186,30 +206,39 @@ function NewMatchCard(){
       
         return String(age);
       }
-
+      
+    
 
     return(
-        // <ScrollView  refreshControl={
-        //     <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>
-        // }
-        // >
-        <ScrollView>
-            <View style = {styles.container}>
+            <ScrollView contentContainerstyle = {styles.container} refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}>
             <Card style={styles.card}>
                 <ScrollView>
                 <Card.Content>
                     <Image
-                        source={{uri: user.image}}
+                        source={imageMap[user.id]}
                         style={styles.image}
                         alt="User Profile Picture"/>
                     <Text style={styles.username}>{user.username}</Text>
                     <Text style={styles.bio}>{user.bio}</Text>
                     {Object.entries(userAttributeDict).map(([key,value]) => (
+                    value === null ? <React.Fragment key={key}/> :
                     key == "Birthdate" ?
-                    <Text key={key}><Ionicons name="balloon-outline" size={16}></Ionicons> {calculateAge(value)}</Text> :
+                    <Card style={styles.detailCard} key={key}>
+                        <View style={styles.row}>
+                            <Ionicons name="balloon-outline" size={24}/>
+                            <Text  style={{marginLeft: 8}}>{calculateAge(value)}</Text>
+                        </View>
+                    </Card> :
                     key == "Date" ?
-                    <Text key={key}></Text>:
-                        <Text key={key}><Ionicons name="glasses-outline" size={16}></Ionicons> {value}</Text>
+                    <Text key={key}></Text>: 
+                        <Card style={styles.detailCard} key={key} >
+                            <View style={styles.row}>
+                                <Ionicons name={icons[key]} size={24}/>
+                                <Text style={{marginLeft: 8}}>{value}</Text>
+                            </View>
+                        </Card>
+                        
                         
                 ))}
                 </Card.Content>
@@ -218,12 +247,9 @@ function NewMatchCard(){
                     <Button style = {styles.button} icon="close" mode="outlined" iconStyle={{alignItems: 'center'}} onPress={handleDislike}/>
                     <View style={styles.spacer}></View>
                     <Button style = {styles.button} icon="heart" mode="contained" iconStyle={{alignSelf: 'center'}} onPress={handleLike}/>
-                     
-                  
                 </Card.Actions>
             </Card>
-            </View>
-        </ScrollView>
+            </ScrollView>
      
     )
 
@@ -238,8 +264,8 @@ const styles = StyleSheet.create({
     },
     card: {
       width: 350,
-      height: 600,
-      padding: 16,
+      height: 630,
+      padding: 9,
       margin:16
     },
     image: {
@@ -270,6 +296,14 @@ const styles = StyleSheet.create({
     },
     button: {
         justifyContent: 'center',
+        alignItems: 'center'
+    },
+    detailCard:{
+        margin: 5,
+        padding: 3,
+    },
+    row:{
+        flexDirection: 'row',
         alignItems: 'center'
     }
   });

@@ -24,16 +24,27 @@ if __name__ == '__main__':
         UserAttribute.query.delete()
         Message.query.delete()
 
-        unique_first_names = set()  # Use a set to ensure uniqueness
+        unique_male_names = set()  # Use a set to ensure uniqueness
+        unique_female_names = set()
 
-        while len(unique_first_names) < 100:
-            unique_first_names.add(fake.first_name())
+        while len(unique_male_names) < 51:
+            unique_male_names.add(fake.first_name_male())
+        
+        while len(unique_female_names) < 101:
+            unique_female_names.add(fake.first_name_female())
 
         # Convert the set to a list if needed
-        unique_first_names_list = list(unique_first_names)
+        unique_male_list = list(unique_male_names)
+        unique_female_list = list(unique_female_names)
         users = []
-        for i in range(0,100):
-            user = User(username = unique_first_names_list[i],bio = fake.text(), image = fake.image_url(250,250))
+
+        for l in range(1,51):
+            user = User(username = unique_male_list[l],bio = fake.text(), image = f'"../assets/{l}.jpg"')
+            user.password_hash = user.username + 'password'
+            users.append(user)
+        
+        for q in range(51,101):
+            user = User(username = unique_female_list[q],bio = fake.text(), image = f'"../assets/{q}.jpg"')
             user.password_hash = user.username + 'password'
             users.append(user)
 
@@ -47,16 +58,31 @@ if __name__ == '__main__':
         messages = []
 
         gender_options = ['Man','Woman','Nonbinary']
-        height_options = PreferenceOption(category='Height',input_type='interval',minval=90, maxval=200)
-        age_options = PreferenceOption(category='Age', input_type='date',minval=18, maxval = 100)
+        height_options = []
+        for feet in range(4,8):
+            for inches in range(0,12):
+                height_options.append(f"{feet}'{inches}\"")
         ethnicity_options = ['Black/African Descent','East Asian','Hispanic/Latino','Middle Eastern', 'Native American','Pacific Islander', 'South Asian', 'Southeast Asian', 'White/Caucasian','Other']
         religion_options = ['Agnostic','Atheist','Buddhist','Catholic','Christian','Hindu','Jewish','Muslim','Sikh','Spiritual','Other']
         relationship_options = ['Monogamy','Non-monogamy','Figuring out their relationship type']
         politics_options = ['Liberal','Conservative','Moderate','Agnostic']
         education_options = ['High School','Bachelors','Masters','PhD']
 
+        def generate_random_height():
+            feet = fake.random_int(min=5, max=7)
+            inches = fake.random_int(min=0, max=11)
+            return f"{feet}'{inches}\""
+        
+        for m in range(1,51):
+            attribute_1 = UserAttribute(user_id=m,attribute_category='Gender', attribute_value='Man')
+            user_attributes.append(attribute_1)
+        
+        for g in range(51,101):
+            attribute_1 = UserAttribute(user_id=g,attribute_category='Gender', attribute_value='Woman')
+            user_attributes.append(attribute_1)
+
         for k in range(1,101):
-            preference_1 = Preference(user_id=k,pref_category='Gender', pref_value=gender_options[fake.random_int(min=0,max=2)])
+            preference_1 = Preference(user_id=k,pref_category='Gender', pref_value=gender_options[fake.random_int(min=0,max=1)])
             # preference_2 = Preference(user_id=k,pref_category='Height',pref_value=fake.random_int(min=90, max=100))
             preference_3 = Preference(user_id=k,pref_category='Age',pref_value=fake.random_int(min=18, max=30))
             # preference_4 = Preference(user_id=k,pref_category='Height',pref_value=fake.random_int(min=150, max=200))
@@ -71,15 +97,14 @@ if __name__ == '__main__':
             # preferences.append(preference_6)
             #preferences.append(preference_7)
              
-            attribute_1 = UserAttribute(user_id=k,attribute_category='Gender', attribute_value=gender_options[fake.random_int(min=0,max=2)])
-            attribute_2 = UserAttribute(user_id=k,attribute_category='Height',attribute_value=fake.random_int(min=150, max=200))
+            attribute_2 = UserAttribute(user_id=k,attribute_category='Height',attribute_value=generate_random_height())
             attribute_3 = UserAttribute(user_id=k,attribute_category='Birthdate', attribute_value=fake.date_between(start_date=date(1944,1,1), end_date=date(2005,12,31)).isoformat() )
             attribute_4 = UserAttribute(user_id=k,attribute_category='Ethnicity',attribute_value=ethnicity_options[fake.random_int(min=0,max=9)])
             attribute_5 = UserAttribute(user_id=k,attribute_category='Religion',attribute_value=religion_options[fake.random_int(min=0,max=10)])
             attribute_6 = UserAttribute(user_id=k,attribute_category='Relationship',attribute_value=relationship_options[fake.random_int(min=0,max=2)])
             attribute_7 = UserAttribute(user_id=k,attribute_category='Politics',attribute_value=politics_options[fake.random_int(min=0,max=3)])
             attribute_8 = UserAttribute(user_id=k,attribute_category='Education',attribute_value=education_options[fake.random_int(min=0,max=3)])
-            user_attributes.append(attribute_1)
+
             user_attributes.append(attribute_2)
             user_attributes.append(attribute_3)
             user_attributes.append(attribute_4)
@@ -120,14 +145,14 @@ if __name__ == '__main__':
             messages.append(message_11)
 
         pref_options = []
-        pref_option1 = PreferenceOption(category='Gender',input_type='dropdown',options='Man,Woman,Nonbinary', icon="person-outline")
-        pref_option2 = PreferenceOption(category='Height',input_type='interval',minval=90, maxval=200, icon="stats-chart-outline")
+        pref_option1 = PreferenceOption(category='Gender',input_type='dropdown',options=",".join(gender_options), icon="person-outline")
+        pref_option2 = PreferenceOption(category='Height',input_type='interval',options=",".join(height_options), icon="stats-chart-outline")
         pref_option3 = PreferenceOption(category='Age', input_type='interval',minval=18, maxval = 100, icon="balloon-outline")
-        pref_option4 = PreferenceOption(category='Ethnicity',input_type='dropdown', options='Black/African Descent,East Asian,Hispanic/Latino,Middle Eastern, Native American,Pacific Islander, South Asian, Southeast Asian, White/Caucasian,Other',icon="earth-outline")
-        pref_option5 = PreferenceOption(category='Religion',input_type='dropdown',options='Agnostic,Atheist,Buddhist,Catholic,Christian,Hindu,Jewish,Muslim,Sikh,Spiritual,Other', icon="globe-outline")
-        pref_option6 = PreferenceOption(category='Relationship',input_type='dropdown', options='Monogamy,Non-monogamy,Figuring out their relationship type',icon="people-outline")
-        pref_option7= PreferenceOption(category='Politics',input_type='dropdown',options='Liberal,Conservative,Moderate,Agnostic',icon="glasses-outline")
-        pref_option8 = PreferenceOption(category='Education',input_type='dropdown',options='High School,Bachelors,Masters,PhD',icon="book-outline")
+        pref_option4 = PreferenceOption(category='Ethnicity',input_type='dropdown', options=",".join(ethnicity_options),icon="earth-outline")
+        pref_option5 = PreferenceOption(category='Religion',input_type='dropdown',options=",".join(religion_options), icon="globe-outline")
+        pref_option6 = PreferenceOption(category='Relationship',input_type='dropdown', options=",".join(relationship_options),icon="people-outline")
+        pref_option7= PreferenceOption(category='Politics',input_type='dropdown',options=",".join(politics_options),icon="glasses-outline")
+        pref_option8 = PreferenceOption(category='Education',input_type='dropdown',options=",".join(education_options),icon="book-outline")
 
         pref_options.append(pref_option1)
         pref_options.append(pref_option2)

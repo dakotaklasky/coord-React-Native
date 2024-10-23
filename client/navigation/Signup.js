@@ -40,8 +40,10 @@ function Signup(){
         .then(data => setError(data))
     }
 
-    function getDefaultValue(){
-     
+    function getDefaultValue(field){
+        if(field == "Birthdate"){
+            return (new Date()).toISOString().slice(0,10)
+        }
     }
 
     return (

@@ -52,7 +52,7 @@ def myaccount():
                     current_attribute.attribute_value = data[field]
                     db.session.add(current_attribute)
                 else:
-                    user_attribute = UserAttribute(field,data[field])
+                    user_attribute = UserAttribute(user_id= user_id, attribute_category=field,attribute_value=data[field])
                     db.session.add(user_attribute)
         
         db.session.commit()
@@ -79,7 +79,6 @@ def mypreferences():
         return pref_dict, 200
     if request.method == 'PATCH':
         data = request.get_json()
-        print(data)
         for field in data:
             pref = Preference.query.filter(Preference.user_id == user_id).filter(Preference.pref_category == field).first()
             if pref:
@@ -128,10 +127,8 @@ def login():
 def test():
     username = request.headers.get('Authorization')
     if not user_id:
-        print(error)
         return {'error': 'user not found'}, 404
     else:
-        print(username)
         return User.query.filter(User.username == username).first().to_dict(),200
 
 
@@ -145,7 +142,6 @@ def logout():
 @app.route('/new_match', methods=['GET'])
 def new_match():
     username = request.headers.get('Authorization')
-    print(username)
     if not username:
         return {"error":"please login"}, 401
 
@@ -313,12 +309,12 @@ def signup():
     #need to make not manual for if you add fields to user info
     data.pop('username')
     data.pop('password')
-    if 'birthdate' in data:
-        data.pop("birthdate")
     if 'image' in data:
         data.pop('image')
     if 'bio' in data:
         data.pop('bio')
+    if 'name' in data:
+        data.pop('name')
     
     try:
         for key in data:

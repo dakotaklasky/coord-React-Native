@@ -7,8 +7,8 @@ import Constants from 'expo-constants'
 
 
 
-function PreferenceOptionForm({handleSubmit,handleInputChange,getDefaultValue,userInfo, getSliderCategory}){
-    const [error,setError] = useState()
+function PreferenceOptionForm({handleSubmit,handleInputChange,getDefaultValue,userInfo, birthdayState, setBirthdayState}){
+
     const [prefOptions, setPrefOptions] = useState([])
 
     useEffect(() => {
@@ -40,13 +40,6 @@ function PreferenceOptionForm({handleSubmit,handleInputChange,getDefaultValue,us
 
     })
     },[])
-
-    function getBirthdate(birthday){
-        if(birthday){
-            const [year, month, day] = birthday.split('-').map(Number)
-            return new Date(year, month -1, day)
-        }
-    }
 
     const CustomMarker = ({ currentValue }) => {
         return (
@@ -93,7 +86,11 @@ function PreferenceOptionForm({handleSubmit,handleInputChange,getDefaultValue,us
                     </View>
                     <View style={styles.formStyle}>
                         <Text style={styles.label}>Birthdate</Text>
-                        <DateTimePicker value={getBirthdate(getDefaultValue("Birthdate"))} onChange={(value) => handleInputChange("birthdate",value)} mode="date" display="default" ></DateTimePicker>
+                        <DateTimePicker value={birthdayState} onChange={(event, selectedDate) => {
+                            const currentDate = selectedDate || birthdayState
+                            setBirthdayState(new Date(currentDate))}} 
+                            mode="date" 
+                            display="default"/>
                     </View>
                 </View>) :
                 (<View></View>)}
@@ -226,4 +223,3 @@ const styles = StyleSheet.create({
   });
 
 export default PreferenceOptionForm;
-

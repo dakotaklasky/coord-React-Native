@@ -8,6 +8,7 @@ import Constants from 'expo-constants'
 export default function EditProfile({navigation}){
     const [formData, setFormData] = useState([])
     const [userInfo, setUserInfo] = useState(true)
+    const [birthdayState, setBirthdayState] = useState(new Date())
 
     useEffect(() =>{
         fetch(`${Constants.expoConfig.extra.apiUrl}/myaccount`,{
@@ -32,7 +33,12 @@ export default function EditProfile({navigation}){
             formDict['bio'] = json['bio']
 
             for(const row in json['attributes']){
-                formDict[json['attributes'][row].attribute_category] = json['attributes'][row].attribute_value
+                if (json['attributes'][row].attribute_category === 'Birthdate'){
+                    setBirthdayState(new Date(json['attributes'][row].attribute_value))
+                }
+                else{
+                    formDict[json['attributes'][row].attribute_category] = json['attributes'][row].attribute_value
+                }
             }
             setFormData(formDict)
         })
@@ -56,7 +62,7 @@ export default function EditProfile({navigation}){
 
     function getDefaultValue(field){
         if(field in formData){
-            return formData[field]
+        return formData[field]
         }
     }
         
@@ -70,22 +76,21 @@ export default function EditProfile({navigation}){
                 "Accept": 'application/json',
                 "Authorization": SecureStore.getItem('username')
             },
-            body: JSON.stringify(formData)
+            body: JSON.stringify({...formData,...{'Birthdate': birthdayState.toISOString().slice(0,10)}})
         })
         .then(response => {
             if (response.ok){Alert.alert('Success', 'Profile updated successfully!')}
             else{
                 Alert.alert('Fail', 'Profile update failed!')
-                return Promise.reject(response)
             }
         })
         .catch(response => {console.error('There was a problem')})
-    }
 
+    }
 
   return(
     <ScrollView contentContainerStyle={{paddingBottom: 60}}>
-        <PreferenceOptionForm handleSubmit={handleSubmit} handleInputChange={handleInputChange} getDefaultValue={getDefaultValue} userInfo = {userInfo}/>
+        <PreferenceOptionForm handleSubmit={handleSubmit} handleInputChange={handleInputChange} getDefaultValue={getDefaultValue} userInfo = {userInfo} birthdayState={birthdayState} setBirthdayState={setBirthdayState}/>
     </ScrollView>
   )
 } 

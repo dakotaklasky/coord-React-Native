@@ -7,13 +7,14 @@ import Constants from 'expo-constants'
 function Signup(){
     const [formData, setFormData] = useState({})
     const [userInfo, setUserInfo] = useState(true)
+    const [birthdayState, setBirthdayState] = useState(new Date())
     
     function handleInputChange(name,value){
             setFormData((prevData) => ({
                 ...prevData, [name]:value,
             }))  
     }
-
+    
     function handleSubmit(event){
         event.preventDefault()
 
@@ -24,7 +25,7 @@ function Signup(){
                 "Accept": 'application/json',
                 "Authorization": SecureStore.getItem('username')
             },
-            body: JSON.stringify(formData)
+            body: JSON.stringify({...formData,...{'Birthdate': birthdayState.toISOString().slice(0,10)}})
         })
         .then(response => {
             if (response.ok){
@@ -37,15 +38,11 @@ function Signup(){
         .catch(resp => console.log(resp))
     }
 
-    function getDefaultValue(field){
-        if(field == "Birthdate"){
-            return (new Date()).toISOString().slice(0,10)
-        }
-    }
+    function getDefaultValue(field){}
 
     return (
         <ScrollView>
-            <PreferenceOptionForm handleSubmit={handleSubmit} handleInputChange={handleInputChange} getDefaultValue={getDefaultValue} userInfo={userInfo}></PreferenceOptionForm>
+            <PreferenceOptionForm handleSubmit={handleSubmit} handleInputChange={handleInputChange} getDefaultValue={getDefaultValue} userInfo={userInfo} birthdayState={birthdayState} setBirthdayState={setBirthdayState}></PreferenceOptionForm>
         </ScrollView>
 
 )}

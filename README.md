@@ -2,7 +2,7 @@
 
 ## Introduction
 
-coord is a highly customizable dating app where users can match based on preference filtering
+Coord is a highly customizable dating app where users can match based on preference filtering.
 
 
 ## Setup

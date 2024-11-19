@@ -2,8 +2,7 @@
 
 ## Introduction
 
-Welcome to the future of dating apps where you decide your own algorithm and setting
-up a date is as easy as entering your availability.
+coord is a highly customizable dating app where users can match based on preference filtering
 
 
 ## Setup

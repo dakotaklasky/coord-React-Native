@@ -24,7 +24,7 @@ if __name__ == '__main__':
         UserAttribute.query.delete()
         Message.query.delete()
 
-        unique_male_names = set()  # Use a set to ensure uniqueness
+        unique_male_names = set() 
         unique_female_names = set()
 
         while len(unique_male_names) < 51:
@@ -163,10 +163,6 @@ if __name__ == '__main__':
         pref_options.append(pref_option7)
         pref_options.append(pref_option8)
 
-      
-
-    
-  
         db.session.add_all(preferences)
         db.session.add_all(likes)
         db.session.add_all(matches)

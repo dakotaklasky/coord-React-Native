@@ -9,7 +9,6 @@ from sqlalchemy import select
 from datetime import date,timedelta, datetime
 from sqlalchemy.orm import class_mapper
 
-
 # Local imports
 from config import app, db
 # Add your model imports
@@ -20,7 +19,7 @@ from models import User,Like,Match,Preference,PreferenceOption, UserAttribute, M
 def user(user_id):
         return User.query.filter(User.id == user_id).first().to_dict(), 200
 
-
+#get or update current user info
 @app.route('/myaccount', methods=['GET','PATCH'])
 def myaccount():
 
@@ -33,10 +32,12 @@ def myaccount():
     user_attribute_fields = []
     for i in user.attributes:
         user_attribute_fields.append(i.attribute_category)
-
+    
+    #return current user profile
     if request.method == 'GET':
         return user.to_dict(), 200
 
+    #update user info
     elif request.method == 'PATCH':
         data = request.get_json()
 
@@ -59,6 +60,7 @@ def myaccount():
 
         return user.to_dict(), 200
 
+#get or update user preferences
 @app.route('/mypreferences', methods=['GET','PATCH'])
 def mypreferences():
     username = request.headers.get('Authorization')
@@ -68,6 +70,7 @@ def mypreferences():
     user = User.query.filter(User.username == username).first()
     user_id = user.id
 
+    #return dict of all current preference categories and values
     if request.method == 'GET':
         prefs = user.preferences
         pref_dict = {}
@@ -77,6 +80,8 @@ def mypreferences():
             else:
                 pref_dict[i.pref_category] = [i.pref_value]
         return pref_dict, 200
+    
+    #add pref category and pref value to Preference table
     if request.method == 'PATCH':
         data = request.get_json()
         for field in data:
@@ -106,7 +111,7 @@ def mypreferences():
         return [p.to_dict() for p in Preference.query.filter(Preference.user_id == user_id).all()], 200
 
 
-
+#authenticate username and password
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -123,22 +128,12 @@ def login():
         session['user_id'] = user.id
         return user.to_dict(), 200 
 
-@app.route('/test', methods=['GET'])
-def test():
-    username = request.headers.get('Authorization')
-    if not user_id:
-        return {'error': 'user not found'}, 404
-    else:
-        return User.query.filter(User.username == username).first().to_dict(),200
-
-
 @app.route('/logout',methods=['DELETE'])
 def logout():
     session.clear()
     return {}, 204
 
-#get match prospect
-    #return a user that current user has not yet liked
+#get match prospect, return a user that current user has not yet liked
 @app.route('/new_match', methods=['GET'])
 def new_match():
     username = request.headers.get('Authorization')
@@ -162,13 +157,10 @@ def new_match():
             if user_preferences[i].pref_value != None:
                 pref_dict[user_preferences[i].pref_category]= [user_preferences[i].pref_value]
 
-    
-    #available_users = User.query.filter(User.id.not_in(prev_likes_ids)).all()
-
     query = db.session.query(UserAttribute)
 
     for j in pref_dict:
-
+        #if pref_dict value is array
         if len(pref_dict[j])> 1:
             min_val = min(pref_dict[j])
             max_val = max(pref_dict[j])
@@ -219,8 +211,10 @@ def new_match():
     if not available_users:
         return {"no_users":"out of users"}, 200
     else:
+        #return first user in list of available users
         return available_users[0].to_dict(), 200
 
+#if a user likes someone add to Like table and test if there is a match
 @app.route('/like', methods = ['POST'])
 def user_like():
     username = request.headers.get('Authorization')
@@ -254,6 +248,7 @@ def user_like():
         return like_dict, 201
 
 ####FOR TESTING ######
+#manually insert a like to test matching
 @app.route('/<int:user_id>/like', methods = ['POST'])
 def user_id_like(user_id):
 
@@ -282,6 +277,7 @@ def user_id_like(user_id):
         like_dict['MatchFlag'] = 0
         return like_dict, 201
 
+#query match table that gets populated in like route
 @app.route('/matches', methods = ['GET'])
 def user_matches():
     username = request.headers.get('Authorization')
@@ -292,7 +288,7 @@ def user_matches():
     matches = user.matchee_matches
     return [m.to_dict(rules=['-likes','-matches','-preferences']) for m in matches],200
   
-
+#add new user
 @app.route('/signup',methods=['POST'])
 def signup():
     data = request.get_json()
@@ -306,7 +302,6 @@ def signup():
 
     user = User.query.filter(User.username == data.get('username')).first()
 
-    #need to make not manual for if you add fields to user info
     data.pop('username')
     data.pop('password')
     if 'image' in data:
@@ -331,6 +326,7 @@ def pref_options():
     pref_options = PreferenceOption.query.all()
     return [p.to_dict() for p in pref_options], 200
 
+#pull icons for user profiles
 @app.route('/pref_icons',methods=['GET'])
 def pref_icons():
     pref_options = PreferenceOption.query.all()
@@ -339,9 +335,9 @@ def pref_icons():
         icon_dict[pref_options[i].category] = pref_options[i].icon
     return icon_dict, 200
 
+#get or update user attributes
 @app.route('/user_attributes',methods=['GET', 'PATCH'])
 def user_attributes():
-
     username = request.headers.get('Authorization')
     if not username:
         return {"error":"please login"}, 401
@@ -351,12 +347,11 @@ def user_attributes():
 
     if request.method == "GET":
         user_attributes = UserAttribute.query.filter(UserAttribute.user_id == user_id).all()
-
         attribute_dict = {}
         for a in user_attributes:
             attribute_dict[a.attribute_category] = a.attribute_value
-
         return attribute_dict, 200
+    
     if request.method == 'PATCH':
         data = request.get_json()
         for field in data:
@@ -373,31 +368,7 @@ def user_attributes():
         db.session.commit()
         return {"PATCH":"success"}, 200
 
-
-# @app.route('/isloggedin',methods=['GET'])
-# def isloggedin():
-#     if 'user_id' in session:
-#         return {"logged in":"true"}, 200
-#     else:
-#         return {"logged in": "false"}, 401
-
-# @app.route('/date_matching',methods=['PATCH'])
-# def date_matching():
-#     if 'user_id' in session:
-#         user_id = session.get('user_id')
-#         data = request.get_json()
-#         user = User.query.filter(User.id == user_id).first()
-#         if user.date_matching == 1:
-#             user.date_matching = 0
-#         else:
-#             user.date_matching = 1
-#         db.session.add(user)
-#         db.session.commit()
-
-#         return user.to_dict(), 200
-#     else:
-#         return {"error":"please login"}, 401
-
+#display messages and save new messages
 @app.route('/messages/<int:messagee_id>', methods=['GET','POST'])
 def get_messages(messagee_id):
     username = request.headers.get('Authorization')
@@ -409,20 +380,20 @@ def get_messages(messagee_id):
         messager_id = user.id
         sent_messages = user.messages
 
+        #get all messages user sent to current match
         sent_message_array = []
         for i in range(0,len(sent_messages)):
             if sent_messages[i].messagee == messagee_id:
                 sent_message_array.append({'message': sent_messages[i].message,'time': sent_messages[i].time, 'sender': 'messager'})
         
-        
+        #get all messages sent to user by current match
         received_messages = User.query.filter(User.id== messagee_id).first().messages
-
         received_message_array = []
         for i in range(0,len(received_messages)):
             if received_messages[i].messagee == messager_id:
                 received_message_array.append({'message': received_messages[i].message,'time': received_messages[i].time, 'sender': 'messagee'})
 
-
+        #sort messages based on timestamp and return
         all_sorted_msgs = sorted(sent_message_array + received_message_array, key=lambda x: datetime.fromisoformat(x['time']))
         return {'msgs':all_sorted_msgs}, 200
     
@@ -434,9 +405,6 @@ def get_messages(messagee_id):
         db.session.commit()
         return new_message.to_dict(),200
     
-
-
-
 if __name__ == '__main__':
     app.run(host = '0.0.0.0',port=5555, debug=True)
 

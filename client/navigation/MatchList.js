@@ -8,12 +8,11 @@ import Constants from 'expo-constants'
 import imageMap from './imageMap'
 
 function MatchList(){
-
-
     const navigation = useNavigation()
     const [myData,setMyData] = useState()
     const [messages, setMessages] = useState()
 
+    //return all current matches
     useEffect(() =>{
         fetch(`${Constants.expoConfig.extra.apiUrl}/matches`,{
             method: "GET",
@@ -28,26 +27,10 @@ function MatchList(){
             else{return response.json()}
         })
         .then(json => {
-            
                 setMyData(json)
             }
-            
             )
-        .catch(error => console.error('There was a problem'))
-        // .catch(error => {
-        //     if error.status code == 400
-        //         set error message value
-
-        //     else 
-        //         usenavigate to error page
-        // }
-
-            
-        //     error.json())
-        // .then(data => {
-        //     if data.statusCode 
-        // })
-       
+        .catch(error => console.error('There was a problem'))       
     }, [])
 
     if(myData == null){
@@ -63,6 +46,7 @@ function MatchList(){
         matches.push([myData[m].name,myData[m].id])
     }
 
+    //display all matches with links to match profile and match messages
     return(
         <ScrollView contentContainerStyle={styles.container}>
             {matches.map((match,index) => (
@@ -74,7 +58,6 @@ function MatchList(){
                         </TouchableOpacity>
                         <Text style={styles.text}>{match[0]}</Text>
                     </View>
-                        {/* <Text></Text> */}
                 </Card>
                 </TouchableOpacity>
                 ))}

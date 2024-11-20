@@ -10,7 +10,7 @@ const { width: screenWidth } = Dimensions.get('window');
 
 function MatchDetails({route}){
     const {id} = route.params
-
+    
     const [user, setUser] = useState([])
     const [refreshing, setRefreshing] = useState(false)
     const [userAttributeDict, setUserAttributeDict] = useState([])

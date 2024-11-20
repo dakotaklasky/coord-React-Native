@@ -15,7 +15,7 @@ function NewMatchCard(){
     const [icons, setIcons] = useState([])
     const [refreshing, setRefreshing] = useState(false)
 
-
+    //get new match user and icons to display card
     useEffect(() =>{
         fetch((`${Constants.expoConfig.extra.apiUrl}/new_match`),{
             method: "GET",
@@ -50,7 +50,7 @@ function NewMatchCard(){
     
         }, [])
 
-
+    //return new user on refresh
     const onRefresh = () => {
         setRefreshing(true);
 
@@ -77,10 +77,9 @@ function NewMatchCard(){
             .catch(error =>{console.error('There was a problem')})
 
         setTimeout(() => {
-            setRefreshing(false);
-        }, 2000); 
-    };
-
+            setRefreshing(false)
+        }, 2000)
+    }
 
     if (userAttributeDict.length === 0){
         return (
@@ -90,17 +89,15 @@ function NewMatchCard(){
         )
     }
 
-    
     if(user.no_users){
         return (<ScrollView contentContainerstyle = {{ margin:16}} refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}>
                 <Text style={{fontSize: 20, margin:8, alignSelf:'center'}}>Out of Users</Text>
                 <Text style={{fontSize: 20, margin:8, alignSelf:'center'}}>Please update your preferences</Text>
                 </ScrollView>)
-        
     }
 
-
+    //add dislike to match table and then render new user
     async function handleDislike(){
         await fetch((`${Constants.expoConfig.extra.apiUrl}/like`),{
             method: "POST",
@@ -145,6 +142,7 @@ function NewMatchCard(){
         })
     }
 
+    //add like to to like table and then render new user
     async function handleLike(){
         await fetch((`${Constants.expoConfig.extra.apiUrl}/like`),{
             method: "POST",
@@ -216,7 +214,7 @@ function NewMatchCard(){
         </View>
       );
     
-
+      //display user with image and user attributes
     return(
             <ScrollView contentContainerstyle = {styles.container} refreshControl={
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}>
@@ -267,9 +265,7 @@ function NewMatchCard(){
                 </Card.Actions>
             </Card>
             </ScrollView>
-     
     )
-
 }
 
 const styles = StyleSheet.create({

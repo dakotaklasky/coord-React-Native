@@ -5,6 +5,7 @@ import * as SecureStore from 'expo-secure-store';
 import { Card} from 'react-native-paper';
 import Constants from 'expo-constants'
 
+//display all historical messages and send new ones
 function Messages({route}){
 
     const {id} = route.params
@@ -66,7 +67,7 @@ function Messages({route}){
         .then(errorData => console.log(errorData))
     }
 
-
+    //display message on left or right side and corresponding color depending on sender 
     return(
         <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset="150">
         <ScrollView>

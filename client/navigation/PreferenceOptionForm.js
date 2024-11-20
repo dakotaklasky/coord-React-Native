@@ -62,6 +62,7 @@ function PreferenceOptionForm({handleSubmit,handleInputChange,getDefaultValue,us
     
     return (
         <ScrollView>
+          {/* if user exists populate name, username, password, image and bio inputs */}
                 {userInfo ? 
                 (<View style={styles.container}>
                      <View style={styles.formStyle}>
@@ -95,8 +96,8 @@ function PreferenceOptionForm({handleSubmit,handleInputChange,getDefaultValue,us
                 </View>) :
                 (<View></View>)}
                 <View style={styles.container}>
+                  {/* render user preferences based on input type => dropdown or other */}
                     {prefOptions.map((pref,index) => (
-                        
                         <View key={index} style={styles.formStyle}>
                             <Text style={styles.label}>{pref.category}</Text>
                             {pref.input_type == "dropdown" ? (
@@ -132,7 +133,7 @@ function PreferenceOptionForm({handleSubmit,handleInputChange,getDefaultValue,us
                                 }))}
                                 useNativeAndroidPickerStyle={false}
                             />):
-                            
+                            // render sliders for particular preferences
                             (pref.category == "Height" ? 
                                 (<MultiSlider 
                                     values={getDefaultValue(pref.category) ? [Math.min(...getDefaultValue(pref.category).map((val) => feetToInches(val))), Math.max(...getDefaultValue(pref.category).map((val) => feetToInches(val)))] :["",""]}
@@ -183,7 +184,7 @@ const styles = StyleSheet.create({
         borderColor: 'gray',
         borderRadius: 4,
         color: 'black',
-        paddingRight: 30, // to ensure the text is not cut off on the right
+        paddingRight: 30,
       },
       inputAndroid: {
         fontSize: 16,
@@ -193,10 +194,10 @@ const styles = StyleSheet.create({
         borderColor: 'gray',
         borderRadius: 8,
         color: 'black',
-        paddingRight: 30, // to ensure the text is not cut off on the right
+        paddingRight: 30, 
       },
       placeholder: {
-        color: 'gray', // Placeholder text color
+        color: 'gray', 
         fontSize: 16,
       },
       markerContainer: {

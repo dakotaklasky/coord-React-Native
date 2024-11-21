@@ -6,8 +6,9 @@ import Ionicons from 'react-native-vector-icons/Ionicons'
 import Constants from 'expo-constants'
 import imageMap from './imageMap'
 
-const { width: screenWidth } = Dimensions.get('window');
+const { width: screenWidth } = Dimensions.get('window')
 
+//display user details for matches
 function MatchDetails({route}){
     const {id} = route.params
     

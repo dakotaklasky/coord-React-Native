@@ -6,7 +6,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import * as SecureStore from 'expo-secure-store';
 import {useState,useEffect} from "react"
 
-
 import Login from './Login'
 import NewMatchCard from './NewMatchCard'
 import MatchList from './MatchList'
@@ -16,7 +15,6 @@ import Logout from './Logout'
 import Signup from './Signup'
 import Messages from './Messages'
 import ErrorScreen from './ErrorScreen'
-
 
 const loginName = 'Login'
 const homeName = 'Home'

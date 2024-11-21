@@ -5,10 +5,10 @@ import {useState,useEffect} from "react"
 import PreferenceOptionForm from "./PreferenceOptionForm"
 import Constants from 'expo-constants'
 
+//display and update user preferences
 export default function AccountPreferences({navigation}){
     const [formData, setFormData] = useState([])
     const [userInfo,setUserInfo] = useState(false)
-
 
     useEffect( () => {
         fetch(`${Constants.expoConfig.extra.apiUrl}/mypreferences`,{
@@ -97,7 +97,6 @@ export default function AccountPreferences({navigation}){
   return(
       <ScrollView contentContainerStyle={{paddingBottom: 60}}>
           <PreferenceOptionForm handleSubmit={handleSubmit} handleInputChange={handleInputChange} getDefaultValue={getDefaultValue} userInfo = {userInfo}/>
-
       </ScrollView>
   )
 } 

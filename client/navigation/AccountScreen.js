@@ -6,7 +6,7 @@ import AccountPreview from './AccountPreview'
 import AccountPreferences from './AccountPreferences'
 import EditProfile from './EditProfile'
 
-
+//display preview as default
 function AccountPage() {
 
     const [accountView,setAccountView] = useState('preview')

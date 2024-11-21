@@ -9,6 +9,7 @@ import imageMap from './imageMap'
 
 const { width: screenWidth } = Dimensions.get('window');
 
+//display user account in card preview format
 function AccountPreview(){
 
     const [user, setUser] = useState([])

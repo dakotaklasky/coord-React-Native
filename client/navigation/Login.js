@@ -4,7 +4,6 @@ import {View,Text, TextInput, Button, StyleSheet, Image, KeyboardAvoidingView, T
 import Constants from 'expo-constants'
 import { useNavigation } from '@react-navigation/native';
 
-
 function Login({setIsLoggedIn}){
     const navigation = useNavigation()
     const [msg, setMsg] = useState()
@@ -19,7 +18,6 @@ function Login({setIsLoggedIn}){
         }
     }
     
-
     async function handleSubmit(){
         await fetch(`${Constants.expoConfig.extra.apiUrl}/login`,{
             method: 'POST',

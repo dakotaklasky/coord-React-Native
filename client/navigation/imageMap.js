@@ -1,3 +1,4 @@
+//temporary image storage
 const imageMap = {
     1: require('../assets/1.jpg'),
     2: require('../assets/2.jpg'),

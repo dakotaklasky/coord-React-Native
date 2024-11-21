@@ -3,6 +3,7 @@ import {View,Text, Button} from 'react-native'
 import {useState} from "react"
 import * as SecureStore from 'expo-secure-store';
 
+//logout by deleting username from temp securestore storage
 export default function Logout({setIsLoggedIn}){
 
     [msg, setMsg] = useState()
@@ -16,10 +17,7 @@ export default function Logout({setIsLoggedIn}){
         catch{
             setMsg("Could not log out")
         }
-
-        
     }
-
 
     return(
       <View>
